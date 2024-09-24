@@ -6,10 +6,9 @@ export ENV="${2:-local}"
 export REGION="${3:-us-east-1}"
 export TDV_ENV="${4:-dev}"
 export OPS_TYPE="${5:-all}"
-export ASSIGN_TAG="${6:-true}" # ignore this argument; not in use
-export LIQUIBASE_TAG="${7:-default}"
-export PROJECT_NAME="${8:-default}"
-export TERRAGRUNT_PARALLELISM="${9:-3}"
+export LIQUIBASE_TAG="${6:-None}"
+export PROJECT_NAME="${7:-default}"
+export TERRAGRUNT_PARALLELISM="${8:-3}"
 
 echo "JOB INFO:: rollback modules"
 
@@ -58,12 +57,12 @@ run_poetry_command() {
   local dag_id=$2
   echo "Run DAG for S3=${s3_path}"
   poetry -C scripts/airflow_dag_runner run trigger_dag_and_monitor \
-    --mwaa_env="${MWAA_ENV}" \
-    --region="${REGION}" \
-    --dag_id="${dag_id}" \
-    --s3_path="${s3_path}" \
-    --secrets_manager_name="${SECRETS_MANAGER}" \
-    --bucket_env="${ENV}" \
+    --mwaa_env=${MWAA_ENV} \
+    --region=${REGION} \
+    --dag_id=${dag_id} \
+    --s3_path=${s3_path} \
+    --secrets_manager_name=${SECRETS_MANAGER} \
+    --bucket_env=${ENV} \
     --liquibase_cmd="rollback --tag=${LIQUIBASE_TAG}"
 }
 

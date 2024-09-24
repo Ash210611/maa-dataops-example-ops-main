@@ -220,24 +220,18 @@ def extraCredentials = [
 ]
 
 if (env.ENV != "prod") {
-    if (env.TDV_SERVICE_ACCOUNT_NAME_2 != "") {
-        extraCredentials = extraCredentials + [
-            usernamePassword(
-                credentialsId: "${TDV_SERVICE_ACCOUNT_NAME_2}",
-                usernameVariable: 'tdv_sa_username_2',
-                passwordVariable: 'tdv_sa_password_2'
-            ),
-        ]
-    }
-    if (env.TDV_SERVICE_ACCOUNT_NAME_3 != "") {
-            extraCredentials = extraCredentials + [
-            usernamePassword(
-                credentialsId: "${TDV_SERVICE_ACCOUNT_NAME_3}",
-                usernameVariable: 'tdv_sa_username_3',
-                passwordVariable: 'tdv_sa_password_3'
-            ),
-        ]
-    }
+    extraCredentials = extraCredentials + [
+        usernamePassword(
+            credentialsId: "${TDV_SERVICE_ACCOUNT_NAME_2}",
+            usernameVariable: 'tdv_sa_username_2',
+            passwordVariable: 'tdv_sa_password_2'
+        ),
+        usernamePassword(
+            credentialsId: "${TDV_SERVICE_ACCOUNT_NAME_3}",
+            usernameVariable: 'tdv_sa_username_3',
+            passwordVariable: 'tdv_sa_password_3'
+        ),
+    ]
 }
 
 def deployTemplate = [
@@ -256,7 +250,7 @@ def deployTemplate = [
         container       : container,
         deploymentType  : 'plz',
         alias           : '${PLZ_ALIAS} ${MODULE_NAME}',
-        extraArgs       : '${ENV} ${REGION_NAME} ${TDV_ENV} ${OPS_TYPE} ${ASSIGN_TAG} ${LIQUIBASE_TAG}',
+        extraArgs       : '${ENV} ${REGION_NAME} ${TDV_ENV} ${OPS_TYPE} ${LIQUIBASE_TAG}',
         extraCredentials: extraCredentials,
 ]
 
@@ -379,15 +373,10 @@ ansiColor('xterm') {
                                 description: 'Please build alias to run as described in your product\'s .plzconfig file',
                                 name: 'PLZ_ALIAS'
                         ),
-                        booleanParam(
-                                name: 'ASSIGN_TAG',
-                                defaultValue: false,
-                                description: 'If true then use the text of the LIQUIBASE_TAG field as the tag to assign on the liquibase.\nThis must be true for Rollback action.'
-                        ),
                         string(
                                 name: 'LIQUIBASE_TAG',
-                                defaultValue: 'default',
-                                description: 'The tag used by liquibase commands such as rollback.\n For "apply_all" alias, use "default" to automatically use the hash code of the last git commit, or input your own tag.\nFor "rollback_all" alias, the "default" is invalid that you must input the tag you want to rollback.'
+                                defaultValue: 'None',
+                                description: 'The tag used by liquibase commands such as rollback'
                         ),
                         choice(
                                 choices: ['all', 'tdv_ddl', 'tdv_dml', 'dml_with_dag', 'stored_proc'],
