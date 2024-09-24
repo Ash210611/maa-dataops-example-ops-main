@@ -2,9 +2,9 @@
 set -e -o pipefail
 
 export MODULE_NAME="${1:-pipeline_infra}"
-export ENV="${2:-local}"
+export ENV="${2:-dev}"
 export REGION="${3:-us-east-1}"
-export TDV_ENV="${4:-dev}"
+export TDV_ENV="${4:-all_tdv}"
 export OPS_TYPE="${5:-all}"
 export ASSIGN_TAG="${6:-false}"
 export LIQUIBASE_TAG="${7:-default}"

@@ -7,7 +7,7 @@ locals {
   destination_folder   = "${var.solution_repo}${local.s3_prefix}/${var.type_map.name}/${var.branch}"
   dag_path = "${var.repo_path}/${var.type_map.name}/dags"
   stored_proc_path = "${var.repo_path}/${var.type_map.name}/stored_procs"
-  tdv_envs = var.tdv_env=="" ? lookup(var.tdv_environments, var.env) : [var.tdv_env,]
+  tdv_envs = var.tdv_env=="all_tdv" ? lookup(var.tdv_environments, var.env) : [var.tdv_env,]
   env_files = {
     for tdv_env in local.tdv_envs :
     tdv_env => fileset("${local.changelog_files_path}/", "${tdv_env}.changelog.xml")

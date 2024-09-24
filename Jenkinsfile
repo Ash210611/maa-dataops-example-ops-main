@@ -13,7 +13,7 @@ def container = [
         memory: 4000
 ]
 
-String accountRoleName = "Enterprise/MAAGATEKEEPERJENKINS"
+String accountRoleName = "Enterprise/MAAEVERNORTHGATEKEEPERJENKINS"
 String cloud_name = "evernorth-qp-gov-solns-openshift-devops1"
 String eks_gatekeeper_cloud_name = "evernorth-qp-gov-solns-eks-prod"
 
@@ -73,42 +73,43 @@ spec:
                                 parameters: [choice(name: "git_branch", choices: "${GIT_BRANCHES}", description: "Git branches")]
                         )
                         env.SOLUTION_BRANCH = inputResult
-
-                        def ENV_DEV = ['dev', 'dev2', 'int']
-                        def ENV_TEST = ['uat', 'qa', 'ite']
-                        def ENV_PROD = ['prd']
-                        def ENV_ALL = ENV_DEV + ENV_TEST + ENV_PROD
-
-                        def TDV_ENV_CHOICES = ''
-                        switch(env.SOLUTION_BRANCH.trim()) {
-                            case "dev":
-                                ENV_DEV.each {
-                                    TDV_ENV_CHOICES += it + '\n'
-                                }
-                                break
-                            case "test":
-                                ENV_TEST.each {
-                                    TDV_ENV_CHOICES += it + '\n'
-                                }
-                                break
-                            case "main":
-                                ENV_PROD.each {
-                                    TDV_ENV_CHOICES += it + '\n'
-                                }
-                                break
-                            default:
-                                ENV_ALL.each {
-                                    TDV_ENV_CHOICES += it + '\n'
-                                }
-                                break
-                        }   // closes switch statement
-
-                        tdvEnvInputResult = input(
-                            message: "Select a TDV environment",
-                            parameters: [choice(name: "tdv_environment", choices: "${TDV_ENV_CHOICES}", description: "TDV Environments")]
-                        )
-
-                        env.TDV_ENV = tdvEnvInputResult
+                        def TDV_DEFAULT = 'all_tdv'
+                        env.TDV_ENV = TDV_DEFAULT
+//                         def ENV_DEV = ['dev', 'dev2', 'int']
+//                         def ENV_TEST = ['uat', 'qa', 'ite']
+//                         def ENV_PROD = ['prd']
+//                         def ENV_ALL = ENV_DEV + ENV_TEST + ENV_PROD
+//
+//                         def TDV_ENV_CHOICES = ''
+//                         switch(env.SOLUTION_BRANCH.trim()) {
+//                             case "dev":
+//                                 ENV_DEV.each {
+//                                     TDV_ENV_CHOICES += it + '\n'
+//                                 }
+//                                 break
+//                             case "test":
+//                                 ENV_TEST.each {
+//                                     TDV_ENV_CHOICES += it + '\n'
+//                                 }
+//                                 break
+//                             case "main":
+//                                 ENV_PROD.each {
+//                                     TDV_ENV_CHOICES += it + '\n'
+//                                 }
+//                                 break
+//                             default:
+//                                 ENV_ALL.each {
+//                                     TDV_ENV_CHOICES += it + '\n'
+//                                 }
+//                                 break
+//                         }   // closes switch statement
+//
+//                         tdvEnvInputResult = input(
+//                             message: "Select a TDV environment",
+//                             parameters: [choice(name: "tdv_environment", choices: "${TDV_ENV_CHOICES}", description: "TDV Environments")]
+//                         )
+//
+//                         env.TDV_ENV = tdvEnvInputResult
                     }
                 }
             }

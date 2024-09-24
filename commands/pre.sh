@@ -80,8 +80,8 @@ function set_and_fed() {
     if [[ ! -v FED_PROVIDER ]]; then export FED_PROVIDER="CI"; fi
 
     # Federate and set terraform and terragrunt
-    TERRAFORM_VERSION="${TERRAFORM_VERSION:-1.0.5}"
-    TERRAGRUNT_VERSION="${TERRAGRUNT_VERSION:-0.31.6}"
+    TERRAFORM_VERSION="${TERRAFORM_VERSION:-1.4.7}"
+    TERRAGRUNT_VERSION="${TERRAGRUNT_VERSION:-0.50.14}"
 
     echo ""
     echo "[INFO] Environment       : ${ENV}"
