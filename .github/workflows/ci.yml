@@ -6,64 +6,35 @@ on:
       git_branch:
         description: 'Select a git branch'
         required: true
-        type: choice
-        options: []  # This will be dynamically populated
-      tdv_environment:
-        description: 'Select a TDV environment'
-        required: true
-        type: choice
-        options: []  # This will be dynamically populated
+        default: 'main'
+      # tdv_environment:
+      #   description: 'Select a TDV environment'
+      #   required: true
+      #   default: 'dev'
 
 jobs:
-  build:
+  fetch_branches:
     runs-on: ubuntu-latest
-
+    outputs:
+      branches: ${{ steps.get_branches.outputs.branches }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up jq
-      run: sudo apt-get install -y jq
-
     - name: Fetch Git Branches
-      id: fetch_branches
-      env:
-        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
-        SOLUTION_REPO: ${{ secrets.SOLUTION_REPO }}
+      id: get_branches
       run: |
-        GIT_BRANCHES=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: token $GIT_TOKEN" https://api.github.sys.cigna.com/repos/cigna/$SOLUTION_REPO/branches | jq -r '.[].name')
-        echo "GIT_BRANCHES=$GIT_BRANCHES" >> $GITHUB_ENV
+        GIT_BRANCHES=$(git branch -r | grep -v '\->' | sed 's/origin\///' | tr '\n' ' ')
+        echo "::set-output name=branches::$GIT_BRANCHES"
 
-    - name: Set Git Branch Input Options
-      run: |
-        echo "::set-output name=git_branch_options::${{ env.GIT_BRANCHES }}"
-
-    - name: Set TDV Environment Choices
-      id: set_tdv_env_choices
-      run: |
-        ENV_DEV="dev dev2"
-        ENV_TEST="int uat qa"
-        ENV_PROD="prd"
-        ENV_ALL="$ENV_DEV $ENV_TEST $ENV_PROD"
-
-        TDV_ENV_CHOICES=""
-        case "${{ github.event.inputs.git_branch }}" in
-          dev)
-            TDV_ENV_CHOICES="$ENV_DEV"
-            ;;
-          test)
-            TDV_ENV_CHOICES="$ENV_TEST"
-            ;;
-          main)
-            TDV_ENV_CHOICES="$ENV_PROD"
-            ;;
-          *)
-            TDV_ENV_CHOICES="$ENV_ALL"
-            ;;
-        esac
-
-        echo "TDV_ENV_CHOICES=$TDV_ENV_CHOICES" >> $GITHUB_ENV
-        echo "::set-output name=tdv_env_options::$TDV_ENV_CHOICES"
+  build:
+    runs-on: ubuntu-latest
+    needs: fetch_branches
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.inputs.git_branch }}
 
     - name: Set Environment Variables
       run: |
