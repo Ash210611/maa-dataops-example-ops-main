@@ -6,11 +6,16 @@ on:
       git_branch:
         description: 'Select a git branch'
         required: true
-        default: 'main'
-      # tdv_environment:
-      #   description: 'Select a TDV environment'
-      #   required: true
-      #   default: 'dev'
+        type: choice
+        options: 
+          - origin/feature_deploy-store-procedure
+          - origin/feature_fix-jenkins-sms
+          - origin/feature_jenkins-input
+          - origin/feature_liquibase-rollback
+          - origin/feature_rapcetm-533
+          - origin/feature_rules-engine
+          - origin/feature_test-new-config
+          - origin/feature_test-stored-procedure
 
 jobs:
   fetch_branches:
@@ -24,8 +29,7 @@ jobs:
     - name: Fetch Git Branches
       id: get_branches
       run: |
-        GIT_BRANCHES=$(git branch -r | grep -v '\->' | sed 's/origin\///' | tr '\n' ' ')
-        echo "::set-output name=branches::$GIT_BRANCHES"
+        echo "${{ github.event.inputs.git_branch }}"
 
   build:
     runs-on: ubuntu-latest
