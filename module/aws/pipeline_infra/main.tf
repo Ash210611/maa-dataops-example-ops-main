@@ -46,16 +46,16 @@ module "dml_with_dag" {
   tdv_env       = var.tdv_env
 }
 
-#module "stored_procs" {
-#  source    = "./modules/tdv"
-#  for_each  = { for x in local.yaml_data["stored_proc"] : x.name => x }
-#  repo_path = var.repo_path
-#
-#  branch        = local.branch_suffix
-#  dest_bucket   = local.s3_airflow
-#  type          = "stored_proc"
-#  type_map      = each.value
-#  solution_repo = var.solution_repo
-#  env           = local.param_store_env
-#  tdv_env       = var.tdv_env
-#}
+module "stored_procs" {
+  source    = "./modules/tdv"
+  for_each  = { for x in local.yaml_data["stored_proc"] : x.name => x }
+  repo_path = var.repo_path
+
+  branch        = local.branch_suffix
+  dest_bucket   = local.s3_airflow
+  type          = "stored_proc"
+  type_map      = each.value
+  solution_repo = var.solution_repo
+  env           = local.param_store_env
+  tdv_env       = var.tdv_env
+}

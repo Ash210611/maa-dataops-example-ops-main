@@ -68,21 +68,21 @@ run_poetry_command() {
 }
 
 case ${OPS_TYPE} in
-#  all)
-#    S3_PATHS=("${TDV_DDL_S3_PATHS[@]}" "${TDV_DML_S3_PATHS[@]}" "${TDV_STORED_PROC_S3_PATHS[@]}")
-#    ;;
   all)
-    S3_PATHS=("${TDV_DDL_S3_PATHS[@]}" "${TDV_DML_S3_PATHS[@]}")
+    S3_PATHS=("${TDV_DDL_S3_PATHS[@]}" "${TDV_DML_S3_PATHS[@]}" "${TDV_STORED_PROC_S3_PATHS[@]}")
     ;;
+#  all)
+#    S3_PATHS=("${TDV_DDL_S3_PATHS[@]}" "${TDV_DML_S3_PATHS[@]}")
+#    ;;
   tdv_ddl)
     S3_PATHS=("${TDV_DDL_S3_PATHS[@]}")
     ;;
   tdv_dml)
     S3_PATHS=("${TDV_DML_S3_PATHS[@]}")
     ;;
-#  stored_proc)
-#    S3_PATHS=("${TDV_STORED_PROC_S3_PATHS[@]}")
-#    ;;
+  stored_proc)
+    S3_PATHS=("${TDV_STORED_PROC_S3_PATHS[@]}")
+    ;;
   *)
     echo "Error: Invalid OPS_TYPE=${OPS_TYPE}"
     ;;

@@ -4,7 +4,7 @@ maa-dataops-example-ops:
   TERRAGRUNT_VERSION: 0.50.14
   SOLUTION_REPO: maa-dataops-example-solutions
   DAG_ID: blueprint_ddl_liquibase_v2
-  ACCOUNT_ROLE_NAME: Enterprise/MAAGATEKEEPERJENKINS
+  ACCOUNT_ROLE_NAME: Enterprise/MAAEVERNORTHGATEKEEPERJENKINS
   CLOUD_NAME: evernorth-qp-gov-solns-openshift-devops1
   EKS_GATEKEEPER_CLOUD_NAME: evernorth-qp-gov-solns-eks-prod
   CONTAINER_IMAGE: registry.cigna.com/enterprise-devops/aws-d-megatainer
@@ -33,4 +33,3 @@ maa-dataops-example-ops:
   TDV_SERVICE_ACCOUNT_NAME_ITE: SVT_DATAOPS_UAT
   TDV_SERVICE_ACCOUNT_NAME_QA: SVT_DATAOPS_UAT
   TDV_SERVICE_ACCOUNT_NAME_PRD: SVT_DATAOPS_PRD
-

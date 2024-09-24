@@ -6,6 +6,7 @@ export ENV="${2:-local}"
 export REGION="${3:-us-east-1}"
 export TDV_ENV="${4:-dev}"
 export OPS_TYPE="${5:-all}"
+export DAGID="${8:-default}"
 export PROJECT_NAME="${6:-default}"
 export TERRAGRUNT_PARALLELISM="${7:-3}"
 

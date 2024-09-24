@@ -13,7 +13,7 @@ def container = [
         memory: 4000
 ]
 
-String accountRoleName = "Enterprise/MAAGATEKEEPERJENKINS"
+String accountRoleName = "Enterprise/MAAEVERNORTHGATEKEEPERJENKINS"
 String cloud_name = "evernorth-qp-gov-solns-openshift-devops1"
 String eks_gatekeeper_cloud_name = "evernorth-qp-gov-solns-eks-prod"
 
@@ -74,8 +74,8 @@ spec:
                         )
                         env.SOLUTION_BRANCH = inputResult
 
-                        def ENV_DEV = ['dev', 'dev2', 'int']
-                        def ENV_TEST = ['uat', 'qa', 'ite']
+                        def ENV_DEV = ['dev', 'dev2']
+                        def ENV_TEST = ['int', 'uat', 'qa']
                         def ENV_PROD = ['prd']
                         def ENV_ALL = ENV_DEV + ENV_TEST + ENV_PROD
 
@@ -256,7 +256,7 @@ def deployTemplate = [
         container       : container,
         deploymentType  : 'plz',
         alias           : '${PLZ_ALIAS} ${MODULE_NAME}',
-        extraArgs       : '${ENV} ${REGION_NAME} ${TDV_ENV} ${OPS_TYPE} ${ASSIGN_TAG} ${LIQUIBASE_TAG}',
+        extraArgs       : '${ENV} ${REGION_NAME} ${TDV_ENV} ${OPS_TYPE} ${ASSIGN_TAG} ${LIQUIBASE_TAG} ${DAGID}',
         extraCredentials: extraCredentials,
 ]
 
@@ -388,6 +388,11 @@ ansiColor('xterm') {
                                 name: 'LIQUIBASE_TAG',
                                 defaultValue: 'default',
                                 description: 'The tag used by liquibase commands such as rollback.\n For "apply_all" alias, use "default" to automatically use the hash code of the last git commit, or input your own tag.\nFor "rollback_all" alias, the "default" is invalid that you must input the tag you want to rollback.'
+                        ),
+                        string(
+                                name: 'DAGID',
+                                defaultValue: 'blueprint_ddl_liquibase_v2',
+                                description: 'The id/name of the DAG'
                         ),
                         choice(
                                 choices: ['all', 'tdv_ddl', 'tdv_dml', 'dml_with_dag', 'stored_proc'],
