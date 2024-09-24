@@ -21,7 +21,6 @@ def trigger_dag():
     parser.add_argument("--s3_path", required=True)
     parser.add_argument("--bucket_env", required=True)
     parser.add_argument("--secrets_manager_name", required=True)
-    parser.add_argument("--liquibase_cmd", required=True)
 
     args = parser.parse_args()
 
@@ -31,7 +30,6 @@ def trigger_dag():
         s3_path=args.s3_path,
         bucket_env=args.bucket_env,
         secrets_manager_name=args.secrets_manager_name,
-        liquibase_cmd=args.liquibase_cmd,
     )
 
     if not result:
@@ -48,7 +46,6 @@ def trigger_dag_and_monitor():
     parser.add_argument("--s3_path", required=True)
     parser.add_argument("--bucket_env", required=True)
     parser.add_argument("--secrets_manager_name", required=True)
-    parser.add_argument("--liquibase_cmd", required=True)
 
     args = parser.parse_args()
 
@@ -58,7 +55,6 @@ def trigger_dag_and_monitor():
         s3_path=args.s3_path,
         bucket_env=args.bucket_env,
         secrets_manager_name=args.secrets_manager_name,
-        liquibase_cmd=args.liquibase_cmd,
     )
 
     if not trigger_result:

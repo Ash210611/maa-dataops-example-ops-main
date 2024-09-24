@@ -6,10 +6,8 @@ export ENV="${2:-local}"
 export REGION="${3:-us-east-1}"
 export TDV_ENV="${4:-dev}"
 export OPS_TYPE="${5:-all}"
-export ASSIGN_TAG="${6:-false}"
-export LIQUIBASE_TAG="${7:-default}"
-export PROJECT_NAME="${8:-default}"
-export TERRAGRUNT_PARALLELISM="${9:-3}"
+export PROJECT_NAME="${6:-default}"
+export TERRAGRUNT_PARALLELISM="${7:-3}"
 
 echo "JOB INFO:: applying modules"
 
@@ -25,11 +23,6 @@ poetry -C scripts/toml_utilities run obtain_build_config terraform_yaml_config g
 cat solution_repo_config.yaml #(maybe debug only?)
 
 export REPO_PATH="${PWD}/git_repo"
-if [[ "$ASSIGN_TAG" = true && "${LIQUIBASE_TAG}" == "default" ]]; then
-  pushd "${REPO_PATH}"
-  LIQUIBASE_TAG=$(git rev-parse --short=7 HEAD)
-  popd
-fi
 
 pushd "module/aws"
 source <(tfenv)
@@ -51,8 +44,6 @@ echo "MWAA_ENV=${MWAA_ENV}"
 echo "REGION=${REGION}"
 echo "AWS ENV=${ENV}"
 echo "TDV_ENV=${TDV_ENV}"
-echo "ASSIGN_TAG=${ASSIGN_TAG}"
-echo "LIQUIBASE_TAG=${LIQUIBASE_TAG}"
 echo "SECRETS_MANAGER=${SECRETS_MANAGER}"
 echo "TDV_DDL_S3_PATHS=${TDV_DDL_S3_PATHS} "
 echo "TDV_DML_S3_PATHS=${TDV_DML_S3_PATHS}"
@@ -63,25 +54,7 @@ run_poetry_command() {
   local s3_path=$1
   local dag_id=$2
   echo "Run DAG for S3=${s3_path}"
-  # Execute liquibase tag if ASSIGN_TAG is true
-  if [ "$ASSIGN_TAG" = true ] ; then
-    poetry -C scripts/airflow_dag_runner run trigger_dag_and_monitor \
-      --mwaa_env="${MWAA_ENV}" \
-      --region="${REGION}" \
-      --dag_id="${dag_id}" \
-      --s3_path="${s3_path}" \
-      --secrets_manager_name="${SECRETS_MANAGER}" \
-      --bucket_env="${ENV}" --liquibase_cmd="tag --tag=${LIQUIBASE_TAG}"
-  fi
-
-  poetry -C scripts/airflow_dag_runner run trigger_dag_and_monitor \
-    --mwaa_env="${MWAA_ENV}" \
-    --region="${REGION}" \
-    --dag_id="${dag_id}" \
-    --s3_path="${s3_path}" \
-    --secrets_manager_name="${SECRETS_MANAGER}" \
-    --bucket_env="${ENV}" \
-    --liquibase_cmd="update"
+  poetry -C scripts/airflow_dag_runner run trigger_dag_and_monitor --mwaa_env=${MWAA_ENV} --region=${REGION} --dag_id=${dag_id} --s3_path=${s3_path} --secrets_manager_name=${SECRETS_MANAGER} --bucket_env=${ENV}
 }
 
 case ${OPS_TYPE} in

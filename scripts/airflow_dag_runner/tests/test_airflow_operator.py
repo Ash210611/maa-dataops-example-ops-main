@@ -86,10 +86,9 @@ class TestAirflowOperator(TestCase):
         s3_path = "s3://test-bucket/test-path"
         bucket_env = "test"
         secrets_manager_name = "test_sm_name"
-        liquibase_cmd = "update"
 
         execution_date = self.airflow_operator.trigger_dag(
-            dag_id, s3_path, bucket_env, secrets_manager_name, liquibase_cmd
+            dag_id, s3_path, bucket_env, secrets_manager_name
         )
 
         self.assertEqual(execution_date, "2024-01-25T12:15:10+00:00")
@@ -100,7 +99,6 @@ class TestAirflowOperator(TestCase):
             requests_mock.request_history[0].body,
             (
                 f'dags trigger {dag_id} --conf \'{{"s3_path": "{s3_path}", "bucket_env": "{bucket_env.upper()}", '
-                f'"liquibase_cmd": "{liquibase_cmd}", '
                 f'"secrets_manager_name": "{secrets_manager_name}", "region": "{self.region}"}}\' '
             ),
         )
@@ -116,10 +114,9 @@ class TestAirflowOperator(TestCase):
         s3_path = "s3://test-bucket/test-path"
         bucket_env = "test"
         secrets_manager_name = "test_sm_name"
-        liquibase_cmd = "update"
 
         execution_date = self.airflow_operator.trigger_dag(
-            dag_id, s3_path, bucket_env, secrets_manager_name, liquibase_cmd
+            dag_id, s3_path, bucket_env, secrets_manager_name
         )
 
         self.assertEqual(execution_date, "2024-04-17T18:33:40+00:00")
@@ -128,7 +125,6 @@ class TestAirflowOperator(TestCase):
         self.assertEqual(requests_mock.request_history[0].url, self.server)
         expected_body = (
             f'dags trigger {dag_id} --conf \'{{"s3_path": "{s3_path}", "bucket_env": "{bucket_env.upper()}", '
-            f'"liquibase_cmd": "{liquibase_cmd}", '
             f'"secrets_manager_name": "{secrets_manager_name}", "region": "{self.region}"}}\' '
         )
         self.assertEqual(requests_mock.request_history[0].body, expected_body)
@@ -143,10 +139,9 @@ class TestAirflowOperator(TestCase):
         s3_path = "s3://test-bucket/test-path"
         bucket_env = "test"
         secrets_manager_name = "test_sm_name"
-        liquibase_cmd = "update"
 
         execution_date = self.airflow_operator.trigger_dag(
-            dag_id, s3_path, bucket_env, secrets_manager_name, liquibase_cmd
+            dag_id, s3_path, bucket_env, secrets_manager_name
         )
 
         self.assertIsNone(execution_date)
@@ -157,7 +152,6 @@ class TestAirflowOperator(TestCase):
             requests_mock.request_history[0].body,
             (
                 f'dags trigger {dag_id} --conf \'{{"s3_path": "{s3_path}", "bucket_env": "{bucket_env.upper()}", '
-                f'"liquibase_cmd": "{liquibase_cmd}", '
                 f'"secrets_manager_name": "{secrets_manager_name}", "region": "{self.region}"}}\' '
             ),
         )

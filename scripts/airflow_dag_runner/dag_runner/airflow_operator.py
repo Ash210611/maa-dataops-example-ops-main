@@ -87,11 +87,10 @@ class AirflowOperator:
         return response
 
     def trigger_dag(
-        self, dag_id: str, s3_path: str, bucket_env: str, secrets_manager_name: str, liquibase_cmd: str = "update",
+        self, dag_id: str, s3_path: str, bucket_env: str, secrets_manager_name: str,
     ) -> Union[str, None]:
         airflow_trigger_command = (
             f'dags trigger {dag_id} --conf \'{{"s3_path": "{s3_path}", "bucket_env": "{bucket_env.upper()}", '
-            f'"liquibase_cmd": "{liquibase_cmd}", '
             f'"secrets_manager_name": "{secrets_manager_name}", "region": "{self.region}"}}\' '
         )
         trigger_response = self._send_post_request(airflow_trigger_command)

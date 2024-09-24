@@ -7,9 +7,6 @@ cmd = run //commands:plan_all
 [alias "destroy_all"]
 cmd = run //commands:destroy_all
 
-[alias "rollback_all"]
-cmd = run //commands:rollback_all
-
 [build]
 path = /home/jenkins/.nvm/versions/node/v16.15.0/bin:/home/jenkins/.local/bin:/home/jenkins/go/bin:/home/jenkins/.bin:/home/jenkins/.please:/home/jenkins/.local/bin:/home/jenkins/go/bin:/home/jenkins/.bin:/home/jenkins/.please:/var/lang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin:/home/jenkins/.dotnet/tools
 timeout = 7200 # in seconds (2 hours)
