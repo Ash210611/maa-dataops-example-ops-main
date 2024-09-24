@@ -8,7 +8,9 @@ variable "solution_repo" {
   type = string
 }
 
-variable "tdv_env" {}
+variable "tdv_env" {
+  default = ""
+}
 
 variable "security_review_id" {
   description = "Security Review ID of the project"

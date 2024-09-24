@@ -37,7 +37,7 @@ variable "tdv_env" {
 variable "tdv_environments" {
   type = map(list(string))
   default = {
-    dev = ["dev", "dev2", "int"],
+    dev = ["dev", "dev2"],
     test = ["uat", "ite", "qa"],
     prod = ["prd"]
   }

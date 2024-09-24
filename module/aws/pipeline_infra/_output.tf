@@ -26,10 +26,9 @@ output "aws_mwaa_environment_name" {
   value = data.terraform_remote_state.maa_mwaa.outputs.aws_mwaa_environment_name
 }
 
-output "env" {
-  value     = local.param_store_env
-  sensitive = true
-}
+#output "env" {
+#  value     = local.param_store_env
+#}
 
 output "aws_region" {
   value = data.aws_region.current.id

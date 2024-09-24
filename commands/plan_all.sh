@@ -4,17 +4,19 @@ set -e -o pipefail
 export MODULE_NAME="${1:-pipeline_infra}"
 export ENV="${2:-local}"
 export REGION="${3:-us-east-1}"
-export TDV_ENV="${4:-dev}"
-export OPS_TYPE="${5:-all}"
-export PROJECT_NAME="${6:-default}"
-export TERRAGRUNT_PARALLELISM="${7:-3}"
+#export TDV_ENV="${4:-dev}"
+export OPS_TYPE="${4:-all}"
+export ASSIGN_TAG="${5:-false}"
+export LIQUIBASE_TAG="${6:-default}"
+export PROJECT_NAME="${7:-default}"
+export TERRAGRUNT_PARALLELISM="${8:-3}"
 
 echo "JOB INFO:: planning modules"
 echo "-- Export Values:"
 echo "MODULE_NAME=${MODULE_NAME}"
 echo "AWS ENV=${ENV}"
 echo "REGION=${REGION}"
-echo "TDV_ENV=${TDV_ENV}"
+#echo "TDV_ENV=${TDV_ENV}"
 
 cd "$(dirname "${0}")/commands" || true
 source pre.sh

@@ -13,7 +13,14 @@ def container = [
         memory: 4000
 ]
 
-String accountRoleName = "Enterprise/MAAGATEKEEPERJENKINS"
+def rules_engine_container = [
+        image: "registry-dev.cigna.com/maa-dataops-rules-engine/maa-dataops-rules-engine-build",
+        version: "1.0.2",
+        cpu: 2000,
+        memory: 2000
+]
+
+String accountRoleName = "Enterprise/MAAEVERNORTHGATEKEEPERJENKINS"
 String cloud_name = "evernorth-qp-gov-solns-openshift-devops1"
 String eks_gatekeeper_cloud_name = "evernorth-qp-gov-solns-eks-prod"
 
@@ -74,8 +81,8 @@ spec:
                         )
                         env.SOLUTION_BRANCH = inputResult
 
-                        def ENV_DEV = ['dev', 'dev2', 'int']
-                        def ENV_TEST = ['uat', 'qa', 'ite']
+                        def ENV_DEV = ['', 'dev', 'dev2']
+                        def ENV_TEST = ['', 'uat', 'qa', 'ite']
                         def ENV_PROD = ['prd']
                         def ENV_ALL = ENV_DEV + ENV_TEST + ENV_PROD
 
@@ -156,11 +163,45 @@ String MODULE_NAME = params.MODULE_NAME ?: "pipeline_infra"
 String PLZ_ALIAS = params.PLZ_ALIAS ?: "apply_all"
 String REGION_NAME = params.REGION_NAME ?: "us-east-1"
 env.SNOW_TICKET_NO = params.SNOW_TICKET_NO ?: ""
+// env.TDV_ENV = params.TDV_ENV ?: ""
 boolean RUN_BUILD = params.BUILD ?: false
 boolean RUN_DEPLOY = params.DEPLOY ?: false
-boolean RUN_CONFTEST = params.CONFTEST ?: false
-boolean RUN_GAMEDAY = params.GAMEDAY ?: false
+boolean RUN_RULES_ENGINE = params.RULES_ENGINE ?: false
 String OPS_TYPE = params.OPS_TYPE ?: "all"
+
+def rulesPhase = [
+	freestyleType      : 'RULES_ENGINE',
+	branchPattern      : 'dev.*|test|main|feature.*|release',
+	container          : rules_engine_container,
+	sdlcEnvironment    : 'Non-Prod',
+	extraCredentials: [
+                usernamePassword(
+                        credentialsId: 'quay_dev_user_pass',
+                        usernameVariable: 'UN_RE_DMV_USER',
+                        passwordVariable: 'UN_RE_DMV_PSWD'
+                ),
+               usernamePassword(
+                        credentialsId: 'SVPDEVOP-CIG-CLONEA_UserPw',
+                        usernameVariable: 'GIT_USER',
+                        passwordVariable: 'GIT_TOKEN'
+                ),
+        ],
+    script: '''
+    set -x
+
+    export OPS_DIR=$(pwd)
+    chmod +x ./commands/run_rules.sh
+    chmod +x ./commands/obtain_solutions.sh
+    ./commands/obtain_solutions.sh
+
+    poetry -C scripts/toml_utilities install
+    ddls=$(poetry -C scripts/toml_utilities run obtain_build_config directory_types git_repo --ops_type tdv_ddl)
+    echo $ddls
+
+    cd ~/rules_engine
+    ${OPS_DIR}/commands/run_rules.sh $OPS_DIR $ddls
+    '''
+]
 
 def buildPhase = [
         buildType       : 'plz',
@@ -256,80 +297,14 @@ def deployTemplate = [
         container       : container,
         deploymentType  : 'plz',
         alias           : '${PLZ_ALIAS} ${MODULE_NAME}',
-        extraArgs       : '${ENV} ${REGION_NAME} ${TDV_ENV} ${OPS_TYPE} ${ASSIGN_TAG} ${LIQUIBASE_TAG}',
+        extraArgs       : '${ENV} ${REGION_NAME} ${OPS_TYPE} ${ASSIGN_TAG} ${LIQUIBASE_TAG}',
         extraCredentials: extraCredentials,
 ]
-
-def confTest = [
-        testing: [
-                [
-                        testType: 'plz',
-                        runInAWS: true,
-                        cloudName: "${eks_gatekeeper_cloud_name}",
-                        aws:
-                                [
-                                        cloudServiceAccountName: "${cloudServiceAccountName}",
-                                        targetAccount: "${targetAccount}",
-                                        accountRoleName: "${accountRoleName}",
-                                        region: 'us-east-1'
-                                ],
-                        verbosityFlag: '-vvvv',
-                        labels: [
-                                'conftest',
-                        ],
-                        container: container,
-                        extraTestArgs: "${MODULE_NAME} ${ENV} ${REGION_NAME}",
-                        runBeforeDeployment: true,
-                        extraCredentials: [
-                                usernamePassword(
-                                        credentialsId: 'SVPDEVOP-CIG-CLONEA_UserPw',
-                                        usernameVariable: 'GIT_USER',
-                                        passwordVariable: 'GIT_TOKEN'
-                                )
-                        ],
-                ]
-        ]
-]
-
-if(RUN_CONFTEST){
-    deployTemplate = deployTemplate + confTest
-}
 
 def pleaseDeploy = deployTemplate + [
         branchPattern   : 'dev|test|main|.*|feature.*|hotfix.*',
         sdlcEnvironment : env.ENV,
         isProductionDeployment: env.ENV == "prod",
-]
-
-def gameDay = [
-        testType : 'plz',
-        typeOverride: 'integration',
-        runInAWS: true,
-        cloudName: "${eks_gatekeeper_cloud_name}",
-        aws:
-                [
-                        cloudServiceAccountName: "${cloudServiceAccountName}",
-                        targetAccount: "${targetAccount}",
-                        accountRoleName: "${accountRoleName}",
-                        region: 'us-east-1'
-                ],
-        verbosityFlag: '-vvvv',
-        branchPattern   : 'dev|test|main|feature.*|hotfix.*',
-        labels   : [
-                'gameday',
-        ],
-        sdlcEnvironment : "${sdlcEnvName}",
-        container: container,
-        extraTestArgs: "${MODULE_NAME} ${ENV} ${REGION_NAME}",
-        runBeforeDeployment: false,
-        isProductionDeployment: env.ENV == "prod",
-        extraCredentials: [
-                usernamePassword(
-                        credentialsId: 'SVPDEVOP-CIG-CLONEA_UserPw',
-                        usernameVariable: 'GIT_USER',
-                        passwordVariable: 'GIT_TOKEN'
-                )
-        ],
 ]
 
 if (!RUN_BUILD) {
@@ -340,8 +315,11 @@ if (!RUN_DEPLOY) {
     pleaseDeploy.branchPattern = "ignored_branch_not_to_run"
 }
 
-if (!RUN_GAMEDAY) {
-    gameDay.branchPattern = "ignored_branch_not_to_run"
+if (!RUN_RULES_ENGINE) {
+    rulesPhase.branchPattern = "ignored_branch_not_to_run"
+}
+else {
+    currentBuild.displayName = env.BUILD_NUMBER + " With RULES_ENGINE"
 }
 
 if (env.ENV == "prod" && RUN_DEPLOY){
@@ -353,10 +331,10 @@ if (env.ENV == "prod" && RUN_DEPLOY){
     ]
 }
 
-if (!RUN_BUILD && !RUN_DEPLOY && !RUN_GAMEDAY) {
+if (!RUN_BUILD && !RUN_DEPLOY && !RUN_RULES_ENGINE) {
     def stars = "******************************************************************************************************************************************\n"
     starts = stars + stars +stars
-    echo(starts+"WARNING: No stages defined because BUILD, DEPLOY nor GAMEDAY were not selected in the build parameters.\n" +
+    echo(starts+"WARNING: No stages defined because BUILD, RULES_ENGINE, DEPLOY nor GAMEDAY were not selected in the build parameters.\n" +
             "If this was the first build on the branch then please reload the job page and use \"Build with Parameters\"\n"+starts)
 }
 
@@ -371,6 +349,11 @@ ansiColor('xterm') {
                         ),
                         booleanParam(
                                 defaultValue: true,
+                                name: 'RULES_ENGINE',
+                                description: 'If true then run rules for any DDLs.'
+                        ),
+                        booleanParam(
+                                defaultValue: true,
                                 name: 'DEPLOY',
                                 description: 'If true then run terraform apply for this build.'
                         ),
@@ -379,6 +362,11 @@ ansiColor('xterm') {
                                 description: 'Please build alias to run as described in your product\'s .plzconfig file',
                                 name: 'PLZ_ALIAS'
                         ),
+//                         string(
+//                                 name: 'TDV_ENV',
+//                                 defaultValue: '',
+//                                 description: 'single tdv env to deploy to?'
+//                         ),
                         booleanParam(
                                 name: 'ASSIGN_TAG',
                                 defaultValue: false,
@@ -413,6 +401,6 @@ ansiColor('xterm') {
         ]
         cloudName = "${cloud_name}"
         gitlabConnectionName = 'cigna_github'
-        phases = [buildPhase, pleaseDeploy]
+        phases = [buildPhase, rulesPhase, pleaseDeploy]
     }
 }

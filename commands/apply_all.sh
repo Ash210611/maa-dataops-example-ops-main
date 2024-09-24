@@ -4,12 +4,12 @@ set -e -o pipefail
 export MODULE_NAME="${1:-pipeline_infra}"
 export ENV="${2:-local}"
 export REGION="${3:-us-east-1}"
-export TDV_ENV="${4:-dev}"
-export OPS_TYPE="${5:-all}"
-export ASSIGN_TAG="${6:-false}"
-export LIQUIBASE_TAG="${7:-default}"
-export PROJECT_NAME="${8:-default}"
-export TERRAGRUNT_PARALLELISM="${9:-3}"
+#export TDV_ENV="${4:-dev}"
+export OPS_TYPE="${4:-all}"
+export ASSIGN_TAG="${5:-false}"
+export LIQUIBASE_TAG="${6:-default}"
+export PROJECT_NAME="${7:-default}"
+export TERRAGRUNT_PARALLELISM="${8:-3}"
 
 echo "JOB INFO:: applying modules"
 
@@ -38,7 +38,7 @@ terragrunt run-all output -json | tee output.json
 
 export MWAA_ENV=$(jq -r '.aws_mwaa_environment_name.value' output.json)
 export REGION=$(jq -r '.aws_region.value' output.json)
-export ENV=$(jq -r '.env.value' output.json)
+
 export SECRETS_MANAGER=$(jq -r '.secrets_name.value' output.json)
 export TDV_DDL_S3_PATHS=$(jq -r '.moduleyamlddl.value | .[] | select(.type=="tdv_ddl") | .output_prefix' output.json)
 export TDV_DML_S3_PATHS=$(jq -r '.moduleyamldml.value | .[] | select(.type=="tdv_dml") | .output_prefix' output.json)
@@ -50,7 +50,7 @@ echo "-- Export Values:"
 echo "MWAA_ENV=${MWAA_ENV}"
 echo "REGION=${REGION}"
 echo "AWS ENV=${ENV}"
-echo "TDV_ENV=${TDV_ENV}"
+#echo "TDV_ENV=${TDV_ENV}"
 echo "ASSIGN_TAG=${ASSIGN_TAG}"
 echo "LIQUIBASE_TAG=${LIQUIBASE_TAG}"
 echo "SECRETS_MANAGER=${SECRETS_MANAGER}"

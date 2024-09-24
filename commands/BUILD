@@ -85,3 +85,22 @@ sh_binary(
     main = "rollback_all.sh",
     name = "rollback_all",
 )
+
+sh_binary(
+    deps = [
+        "//commands:commands",
+        "//:obtain_solutions",
+        "//third_party/aws_fed:aws_fed",
+        "//module:terraform",
+        "//scripts:toml_utilities",
+    ],
+    data= [
+        "//commands:commands",
+        "//:obtain_solutions",
+        "//third_party/aws_fed:aws_fed",
+        "//module:terraform",
+        "//scripts:toml_utilities",
+    ],
+    main = "run_rules.sh",
+    name = "run_rules",
+)

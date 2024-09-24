@@ -13,3 +13,11 @@ output "type" {
 output "type_map_output" {
   value = var.type_map
 }
+
+#output "changelogs" {
+#  value = nonsensitive(local.changelog_files)
+#}
+#
+#output "liquibase_properties" {
+#  value = nonsensitive(local.config_files)
+#}
