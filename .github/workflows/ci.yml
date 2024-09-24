@@ -1,0 +1,109 @@
+name: CI Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_branch:
+        description: 'Select a git branch'
+        required: true
+        type: choice
+        options: []  # This will be dynamically populated
+      tdv_environment:
+        description: 'Select a TDV environment'
+        required: true
+        type: choice
+        options: []  # This will be dynamically populated
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up jq
+      run: sudo apt-get install -y jq
+
+    - name: Fetch Git Branches
+      id: fetch_branches
+      env:
+        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+        SOLUTION_REPO: ${{ secrets.SOLUTION_REPO }}
+      run: |
+        GIT_BRANCHES=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: token $GIT_TOKEN" https://api.github.sys.cigna.com/repos/cigna/$SOLUTION_REPO/branches | jq -r '.[].name')
+        echo "GIT_BRANCHES=$GIT_BRANCHES" >> $GITHUB_ENV
+
+    - name: Set Git Branch Input Options
+      run: |
+        echo "::set-output name=git_branch_options::${{ env.GIT_BRANCHES }}"
+
+    - name: Set TDV Environment Choices
+      id: set_tdv_env_choices
+      run: |
+        ENV_DEV="dev dev2"
+        ENV_TEST="int uat qa"
+        ENV_PROD="prd"
+        ENV_ALL="$ENV_DEV $ENV_TEST $ENV_PROD"
+
+        TDV_ENV_CHOICES=""
+        case "${{ github.event.inputs.git_branch }}" in
+          dev)
+            TDV_ENV_CHOICES="$ENV_DEV"
+            ;;
+          test)
+            TDV_ENV_CHOICES="$ENV_TEST"
+            ;;
+          main)
+            TDV_ENV_CHOICES="$ENV_PROD"
+            ;;
+          *)
+            TDV_ENV_CHOICES="$ENV_ALL"
+            ;;
+        esac
+
+        echo "TDV_ENV_CHOICES=$TDV_ENV_CHOICES" >> $GITHUB_ENV
+        echo "::set-output name=tdv_env_options::$TDV_ENV_CHOICES"
+
+    - name: Set Environment Variables
+      run: |
+        case "${{ github.event.inputs.git_branch }}" in
+          dev)
+            echo "ACCOUNT_NUMBER=215132885729" >> $GITHUB_ENV
+            echo "ENV=dev" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_1=SVT_DATAOPS_DEV" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_2=SVT_DATAOPS_DEV" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_3=SVT_DATAOPS_INT" >> $GITHUB_ENV
+            ;;
+          test)
+            echo "ACCOUNT_NUMBER=883528617975" >> $GITHUB_ENV
+            echo "ENV=test" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_1=SVT_DATAOPS_UAT" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_2=SVT_DATAOPS_UAT" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_3=SVT_DATAOPS_UAT" >> $GITHUB_ENV
+            ;;
+          main)
+            echo "ACCOUNT_NUMBER=160989692528" >> $GITHUB_ENV
+            echo "ENV=prod" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_1=SVT_DATAOPS_PRD" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_2=" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_3=" >> $GITHUB_ENV
+            ;;
+          *)
+            echo "ACCOUNT_NUMBER=215132885729" >> $GITHUB_ENV
+            echo "ENV=dev" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_1=SVT_DATAOPS_DEV" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_2=SVT_DATAOPS_DEV" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_3=SVT_DATAOPS_INT" >> $GITHUB_ENV
+            ;;
+        esac
+
+    - name: Print Environment Variables
+      run: |
+        echo "SOLUTION_BRANCH: ${{ github.event.inputs.git_branch }}"
+        echo "TDV_ENV: ${{ github.event.inputs.tdv_environment }}"
+        echo "ACCOUNT_NUMBER: ${{ env.ACCOUNT_NUMBER }}"
+        echo "ENV: ${{ env.ENV }}"
+        echo "TDV_SERVICE_ACCOUNT_NAME_1: ${{ env.TDV_SERVICE_ACCOUNT_NAME_1 }}"
+        echo "TDV_SERVICE_ACCOUNT_NAME_2: ${{ env.TDV_SERVICE_ACCOUNT_NAME_2 }}"
+        echo "TDV_SERVICE_ACCOUNT_NAME_3: ${{ env.TDV_SERVICE_ACCOUNT_NAME_3 }}"
