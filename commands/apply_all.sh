@@ -6,7 +6,7 @@ export ENV="${2:-local}"
 export REGION="${3:-us-east-1}"
 export TDV_ENV="${4:-dev}"
 export OPS_TYPE="${5:-all}"
-export ASSIGN_TAG="${6:-false}"
+export ASSIGN_TAG="${6:-true}"
 export LIQUIBASE_TAG="${7:-default}"
 export PROJECT_NAME="${8:-default}"
 export TERRAGRUNT_PARALLELISM="${9:-3}"
@@ -25,6 +25,7 @@ poetry -C scripts/toml_utilities run obtain_build_config terraform_yaml_config g
 cat solution_repo_config.yaml #(maybe debug only?)
 
 export REPO_PATH="${PWD}/git_repo"
+
 if [[ "$ASSIGN_TAG" = true && "${LIQUIBASE_TAG}" == "default" ]]; then
   pushd "${REPO_PATH}"
   LIQUIBASE_TAG=$(git rev-parse --short=7 HEAD)
