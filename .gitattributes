@@ -1,0 +1,2 @@
+# Ensure all txt files use LF.
+*.txt        eol=lf

@@ -1,0 +1,40 @@
+[local-deploy]
+account = "643101592424"
+profile = "saml"
+#role = "TEAM/DEPLOYER-GOVFNDNT"
+role= "DEVELOPER"
+
+[dev-deploy]
+account = "215132885729"
+profile = "saml"
+role = "MAADEVELOPER"
+
+[test-deploy]
+account = "320637861154"
+profile = "saml"
+role = "TEAM/DEPLOYER-GOVFNDNT"
+
+[prod-deploy]
+account = "423498800552"
+profile = "saml"
+role = "TEAM/DEPLOYER-GOVFNDNT"
+
+[local-aae-deploy]
+account = "803513724106"
+profile = "saml"
+role = "MWAAUIADMIN"
+
+[dev-aae-deploy]
+account = "803513724106"
+profile = "saml"
+role = "MAADEVELOPER"
+
+[test-aae-deploy]
+account = "392602756591"
+profile = "saml"
+role = "MWAAUIADMIN"
+
+[prod-aae-deploy]
+account = "213454573899"
+profile = "saml"
+role = "MWAAUIADMIN"

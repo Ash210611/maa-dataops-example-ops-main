@@ -1,0 +1,62 @@
+[alias "apply_all"]
+cmd = run //commands:apply_all
+
+[alias "plan_all"]
+cmd = run //commands:plan_all
+
+[alias "destroy_all"]
+cmd = run //commands:destroy_all
+
+[alias "rollback_all"]
+cmd = run //commands:rollback_all
+
+[build]
+path = /home/jenkins/.nvm/versions/node/v16.15.0/bin:/home/jenkins/.local/bin:/home/jenkins/go/bin:/home/jenkins/.bin:/home/jenkins/.please:/home/jenkins/.local/bin:/home/jenkins/go/bin:/home/jenkins/.bin:/home/jenkins/.please:/var/lang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin:/home/jenkins/.dotnet/tools
+timeout = 7200 # in seconds (2 hours)
+PassEnv = AUTH_TYPE
+PassEnv = ARTIFACTS_REPO
+PassEnv = TERRAFORM_VERSION
+PassEnv = TERRAGRUNT_VERSION
+PassEnv = GOPROXY
+PassEnv = AWS_CSM_ENABLED
+PassEnv = AWS_FED_USERNAME
+PassEnv = AWS_FED_PASSWORD
+PassEnv = ENV
+PassEnv = BRANCH_NAME
+PassEnv = TEST_ENV
+PassEnv = FED_PROVIDER
+PassEnv = SAML2AWS_USERNAME
+PassEnv = SAML2AWS_PASSWORD
+PassEnv = SSM_TOKEN
+PassEnv = GIT_USER
+PassEnv = GIT_TOKEN
+PassEnv = ACCOUNT_NUMBER
+PassEnv = SOLUTION_BRANCH
+PassEnv = SOLUTION_REPO
+PassEnv = MWAA_ENV
+PassEnv = REGION
+PASSENV = DAG_ID
+PASSENV = SECURITY_REVIEW_ID
+PassEnv = OPS_TYPE
+PassEnv = TDV_ENV
+PassEnv = TDV_SA_NAME
+
+[buildenv]
+aws-shared-credentials-file = /home/jenkins/.aws/credentials
+
+[buildconfig]
+; Cloud Test Automation library feature file.
+; If you want to execute all the feature file use ".feature".
+; For individual file specify file name "sample_s3.feature".
+cloud-test-feature-name = .feature
+profile = saml
+
+[please]
+SelfUpdate = false
+
+[python]
+moduleDir = third_party/python
+defaultPipRepo = https://repo.sys.cigna.com/artifactory/api/pypi/pypi-repos/simple
+PipFlags = --index-url https://repo.sys.cigna.com/artifactory/api/pypi/pypi-repos/simple --trusted-host repo.sys.cigna.com
+UsePyPI = true
+TestRunner = pytest
