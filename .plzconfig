@@ -40,6 +40,8 @@ PASSENV = SECURITY_REVIEW_ID
 PassEnv = OPS_TYPE
 PassEnv = TDV_ENV
 PassEnv = TDV_SA_NAME
+PassEnv = WAIT_TIME
+PassEnv = PVS_TEST
 
 [buildenv]
 aws-shared-credentials-file = /home/jenkins/.aws/credentials

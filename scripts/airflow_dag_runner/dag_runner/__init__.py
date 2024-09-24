@@ -49,6 +49,7 @@ def trigger_dag_and_monitor():
     parser.add_argument("--bucket_env", required=True)
     parser.add_argument("--secrets_manager_name", required=True)
     parser.add_argument("--liquibase_cmd", required=True)
+    parser.add_argument("--wait_time", required=False)
 
     args = parser.parse_args()
 
@@ -66,8 +67,14 @@ def trigger_dag_and_monitor():
 
     print(f"Dag successfully triggered at {trigger_result}")
 
+    try:
+        wait_limit = int(args.wait_time)
+    except ValueError:
+        print("Error: WAIT_TIME parameter must be an integer.")
+        raise
+
     monitor_result = airflow_operator.monitor_dag_run(
-        dag_id=args.dag_id, execution_date=trigger_result
+        dag_id=args.dag_id, execution_date=trigger_result, check_limit=wait_limit
     )
 
     print(result_message(monitor_result))

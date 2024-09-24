@@ -119,7 +119,7 @@ class AirflowOperator:
         dag_id: str,
         execution_date: str,
         check_limit: int = 10,
-        wait_time: int = 30,
+        wait_time: int = 60,
     ) -> DagMonitorResult:
         counter = 0
         while counter < check_limit:
@@ -130,12 +130,17 @@ class AirflowOperator:
             if state_stdout.startswith("running"):
                 print("Waiting some more...")
                 time.sleep(wait_time)
+                self.cli_token, self.web_server_hostname = self._get_cli_token_and_hostname()
                 counter += 1
             elif state_stdout.startswith("success"):
                 return DagMonitorResult.SUCCESS
             elif state_stdout.startswith("failed"):
+                print("STDOUT:::", state_stdout)
+                print("STDERR:::", state_stderr)
                 return DagMonitorResult.FAILED
             else:
+                print("STDOUT:::", state_stdout)
+                print("STDERR:::", state_stderr)
                 return DagMonitorResult.SERVER_ERROR
 
         return DagMonitorResult.TIMEOUT

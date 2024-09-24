@@ -85,3 +85,28 @@ sh_binary(
     main = "rollback_all.sh",
     name = "rollback_all",
 )
+
+
+sh_test(
+    deps = [
+        "//commands:commands",
+        "//:obtain_solutions",
+        "//third_party/aws_fed:aws_fed",
+        "//module:terraform",
+        "//scripts:toml_utilities",
+        "//scripts:airflow_dag_runner",
+    ],
+    data= [
+        "//commands:commands",
+        "//:obtain_solutions",
+        "//third_party/aws_fed:aws_fed",
+        "//module:terraform",
+        "//scripts:toml_utilities",
+        "//scripts:airflow_dag_runner",
+    ],
+    src = "pvs_test.sh",
+    name = "pvs_test",
+    labels = [
+        "pvs_test"
+    ]
+)

@@ -63,7 +63,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("operation", choices=["directory_types", "terraform_yaml_config"])
     parser.add_argument("directory")
-    parser.add_argument("--ops_type", choices=["tdv_ddl", "tdv_dml", "ddl", "dml", "all", "stored_proc"])
+    parser.add_argument("--ops_type", choices=["tdv_ddl", "tdv_dml", "dml_with_dag", "ddl", "dml", "all", "stored_proc"])
     args = parser.parse_args()
 
     toml_utils = TomlUtilities(args.directory, args.ops_type)

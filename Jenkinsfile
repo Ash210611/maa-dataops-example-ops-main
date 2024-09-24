@@ -3,7 +3,7 @@ env.TERRAFORM_VERSION = '1.4.7'
 env.TERRAGRUNT_VERSION = '0.50.14'
 env.AUTH_TYPE = 'gatekeeper'
 env.SOLUTION_REPO = 'maa-dataops-example-solutions'
-env.DAG_ID = 'blueprint_ddl_liquibase_v2'
+// env.DAG_ID = 'blueprint_ddl_liquibase_v2'
 env.SECURITY_REVIEW_ID = 'RITM7392745'
 
 def container = [
@@ -13,7 +13,14 @@ def container = [
         memory: 4000
 ]
 
-String accountRoleName = "Enterprise/MAAGATEKEEPERJENKINS"
+def rules_engine_container = [
+        image: "registry-dev.cigna.com/maa-dataops-rules-engine/maa-dataops-rules-engine-build",
+        version: "1.0.2",
+        cpu: 2000,
+        memory: 2000
+]
+
+String accountRoleName = "Enterprise/MAAEVERNORTHGATEKEEPERJENKINS"
 String cloud_name = "evernorth-qp-gov-solns-openshift-devops1"
 String eks_gatekeeper_cloud_name = "evernorth-qp-gov-solns-eks-prod"
 
@@ -74,8 +81,8 @@ spec:
                         )
                         env.SOLUTION_BRANCH = inputResult
 
-                        def ENV_DEV = ['dev', 'dev2', 'int']
-                        def ENV_TEST = ['uat', 'qa', 'ite']
+                        def ENV_DEV = ['dev', 'dev2']
+                        def ENV_TEST = ['int', 'uat', 'qa']
                         def ENV_PROD = ['prd']
                         def ENV_ALL = ENV_DEV + ENV_TEST + ENV_PROD
 
@@ -156,11 +163,69 @@ String MODULE_NAME = params.MODULE_NAME ?: "pipeline_infra"
 String PLZ_ALIAS = params.PLZ_ALIAS ?: "apply_all"
 String REGION_NAME = params.REGION_NAME ?: "us-east-1"
 env.SNOW_TICKET_NO = params.SNOW_TICKET_NO ?: ""
+env.DAG_ID = params.DAG_ID ?: 'blueprint_ddl_liquibase_v2'
+String DAG_ID = env.DAG_ID
 boolean RUN_BUILD = params.BUILD ?: false
+boolean RUN_PVS_TEST = params.PVS_TEST ?: false
 boolean RUN_DEPLOY = params.DEPLOY ?: false
 boolean RUN_CONFTEST = params.CONFTEST ?: false
 boolean RUN_GAMEDAY = params.GAMEDAY ?: false
 String OPS_TYPE = params.OPS_TYPE ?: "all"
+boolean RUN_RULES_ENGINE = params.RULES_ENGINE ?: false
+String WAIT_TIME = params.WAIT_TIME ?: "10"
+
+def rulesPhase = [
+	freestyleType      : 'RULES_ENGINE',
+	branchPattern      : 'dev.*|test|main|feature.*|release',
+	container          : rules_engine_container,
+	sdlcEnvironment    : 'Non-Prod',
+	extraCredentials: [
+                usernamePassword(
+                        credentialsId: 'quay_dev_user_pass',
+                        usernameVariable: 'UN_RE_DMV_USER',
+                        passwordVariable: 'UN_RE_DMV_PSWD'
+                ),
+               usernamePassword(
+                        credentialsId: 'SVPDEVOP-CIG-CLONEA_UserPw',
+                        usernameVariable: 'GIT_USER',
+                        passwordVariable: 'GIT_TOKEN'
+                ),
+        ],
+    script: '''
+    set -x
+
+    export OPS_DIR=$(pwd)
+    chmod +x ./commands/run_rules.sh
+    chmod +x ./commands/obtain_solutions.sh
+    ./commands/obtain_solutions.sh
+
+    poetry -C scripts/toml_utilities install
+    ddls=$(poetry -C scripts/toml_utilities run obtain_build_config directory_types git_repo --ops_type tdv_ddl)
+    echo $ddls
+
+    cd ~/rules_engine
+    ${OPS_DIR}/commands/run_rules.sh $OPS_DIR $ddls
+    '''
+]
+
+def pvsFreestyle = [
+	freestyleType      : 'PVS_TEST',
+	branchPattern      : 'dev|test|main|feature.*|release',
+	container          : container,
+	sdlcEnvironment    : 'Non-Prod',
+	extraCredentials: [
+               usernamePassword(
+                        credentialsId: 'SVPDEVOP-CIG-CLONEA_UserPw',
+                        usernameVariable: 'GIT_USER',
+                        passwordVariable: 'GIT_TOKEN'
+                ),
+        ],
+    script: '''
+    set -x
+    pwd
+    ls -la
+    '''
+]
 
 def buildPhase = [
         buildType       : 'plz',
@@ -301,6 +366,32 @@ def pleaseDeploy = deployTemplate + [
         isProductionDeployment: env.ENV == "prod",
 ]
 
+def pvsTest = [
+        testType : 'plz',
+        typeOverride: 'integration',
+        runInAWS: true,
+        cloudName: "${eks_gatekeeper_cloud_name}",
+//         ticketCloudName: "${cloud_name}",
+        aws:
+                [
+                        cloudServiceAccountName: "${cloudServiceAccountName}",
+                        targetAccount: "${targetAccount}",
+                        accountRoleName: "${accountRoleName}",
+                        region: 'us-east-1'
+                ],
+        verbosityFlag: '-vvvv',
+        branchPattern   : 'dev|test|main|feature.*|hotfix.*',
+        labels   : [
+                'pvs_test',
+        ],
+        sdlcEnvironment : "${sdlcEnvName}",
+        container: container,
+        extraTestArgs: "${MODULE_NAME} ${ENV} ${REGION_NAME} ${TDV_ENV} ${WAIT_TIME}",
+        runBeforeDeployment: false,
+        isProductionDeployment: env.ENV == "prod",
+        extraCredentials: extraCredentials
+]
+
 def gameDay = [
         testType : 'plz',
         typeOverride: 'integration',
@@ -336,12 +427,23 @@ if (!RUN_BUILD) {
     buildPhase.branchPattern = "ignored_branch_not_to_run"
 }
 
+if (!RUN_PVS_TEST) {
+    pvsTest.branchPattern = "ignored_branch_not_to_run"
+}
+
 if (!RUN_DEPLOY) {
     pleaseDeploy.branchPattern = "ignored_branch_not_to_run"
 }
 
 if (!RUN_GAMEDAY) {
     gameDay.branchPattern = "ignored_branch_not_to_run"
+}
+
+if (!RUN_RULES_ENGINE) {
+    rulesPhase.branchPattern = "ignored_branch_not_to_run"
+}
+else {
+    currentBuild.displayName = env.BUILD_NUMBER + " With RULES_ENGINE"
 }
 
 if (env.ENV == "prod" && RUN_DEPLOY){
@@ -353,7 +455,7 @@ if (env.ENV == "prod" && RUN_DEPLOY){
     ]
 }
 
-if (!RUN_BUILD && !RUN_DEPLOY && !RUN_GAMEDAY) {
+if (!RUN_BUILD && !RUN_DEPLOY && !RUN_RULES_ENGINE && !RUN_PVS_TEST) {
     def stars = "******************************************************************************************************************************************\n"
     starts = stars + stars +stars
     echo(starts+"WARNING: No stages defined because BUILD, DEPLOY nor GAMEDAY were not selected in the build parameters.\n" +
@@ -371,11 +473,21 @@ ansiColor('xterm') {
                         ),
                         booleanParam(
                                 defaultValue: true,
+                                name: 'RULES_ENGINE',
+                                description: 'If true then run rules for any DDLs.'
+                        ),
+                        booleanParam(
+                                defaultValue: true,
                                 name: 'DEPLOY',
                                 description: 'If true then run terraform apply for this build.'
                         ),
+                        booleanParam(
+                                defaultValue: true,
+                                name: 'PVS_TEST',
+                                description: 'If true then run PVS testing for stored procedures.'
+                        ),
                         choice(
-                                choices: ['plan_all', 'destroy_all', 'apply_all', 'rollback_all'],
+                                choices: ['apply_all', 'plan_all', 'destroy_all', 'rollback_all'],
                                 description: 'Please build alias to run as described in your product\'s .plzconfig file',
                                 name: 'PLZ_ALIAS'
                         ),
@@ -389,10 +501,20 @@ ansiColor('xterm') {
                                 defaultValue: 'default',
                                 description: 'The tag used by liquibase commands such as rollback.\n For "apply_all" alias, use "default" to automatically use the hash code of the last git commit, or input your own tag.\nFor "rollback_all" alias, the "default" is invalid that you must input the tag you want to rollback.'
                         ),
+                        string(
+                                name: 'DAG_ID',
+                                defaultValue: 'data_ops_pvs_dag',
+                                description: 'The id/name of the DAG'
+                        ),
                         choice(
-                                choices: ['all', 'tdv_ddl', 'tdv_dml', 'dml_with_dag', 'stored_proc'],
+                                choices: ['dml_with_dag', 'all', 'tdv_ddl', 'tdv_dml', 'stored_proc'],
                                 description: 'Operations type to deploy. Defaults to all.',
                                 name: 'OPS_TYPE'
+                        ),
+                        string(
+                                name: 'WAIT_TIME',
+                                defaultValue: '10',
+                                description: 'How long to wait for a dag to complete before timing out in minutes.\n Default: 10 Minutes'
                         ),
                         choice(
                                 choices: ['pipeline_infra'],
@@ -413,6 +535,7 @@ ansiColor('xterm') {
         ]
         cloudName = "${cloud_name}"
         gitlabConnectionName = 'cigna_github'
-        phases = [buildPhase, pleaseDeploy]
+        phases = [buildPhase, rulesPhase, pleaseDeploy]
+//         phases = [buildPhase, rulesPhase, pleaseDeploy, pvsTest]
     }
 }

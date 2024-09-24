@@ -18,9 +18,9 @@ output "moduleyamlcustomdml" {
   value = module.dml_with_dag
 }
 
-#output "moduleyamlsp" {
-#  value = module.stored_procs
-#}
+output "moduleyamlsp" {
+  value = module.stored_procs
+}
 
 output "aws_mwaa_environment_name" {
   value = data.terraform_remote_state.maa_mwaa.outputs.aws_mwaa_environment_name

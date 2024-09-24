@@ -58,6 +58,8 @@ echo "TDV_DDL_S3_PATHS=${TDV_DDL_S3_PATHS} "
 echo "TDV_DML_S3_PATHS=${TDV_DML_S3_PATHS}"
 echo "TDV_DML_WITH_DAG_S3_PATHS=${TDV_DML_WITH_DAG_S3_PATHS}"
 echo "TDV_STORED_PROC_S3_PATHS=${TDV_STORED_PROC_S3_PATHS}"
+echo "WAIT_TIME=${WAIT_TIME}"
+echo "DAG_ID=${DAG_ID}"
 
 run_poetry_command() {
   local s3_path=$1
@@ -74,14 +76,27 @@ run_poetry_command() {
       --bucket_env="${ENV}" --liquibase_cmd="tag --tag=${LIQUIBASE_TAG}"
   fi
 
-  poetry -C scripts/airflow_dag_runner run trigger_dag_and_monitor \
-    --mwaa_env="${MWAA_ENV}" \
-    --region="${REGION}" \
-    --dag_id="${dag_id}" \
-    --s3_path="${s3_path}" \
-    --secrets_manager_name="${SECRETS_MANAGER}" \
-    --bucket_env="${ENV}" \
-    --liquibase_cmd="update"
+
+  if [ "$PVS_TEST" = true ] ; then
+    poetry -C scripts/airflow_dag_runner run trigger_dag_and_monitor \
+      --mwaa_env="${MWAA_ENV}" \
+      --region="${REGION}" \
+      --dag_id="data_ops_pvs_dag" \
+      --s3_path="${s3_path}" \
+      --secrets_manager_name="${SECRETS_MANAGER}" \
+      --bucket_env="${ENV}" \
+      --liquibase_cmd="update" \
+      --wait_time="${WAIT_TIME}"
+  else
+    poetry -C scripts/airflow_dag_runner run trigger_dag_and_monitor \
+      --mwaa_env="${MWAA_ENV}" \
+      --region="${REGION}" \
+      --dag_id="${dag_id}" \
+      --s3_path="${s3_path}" \
+      --secrets_manager_name="${SECRETS_MANAGER}" \
+      --bucket_env="${ENV}" \
+      --liquibase_cmd="update"
+  fi
 }
 
 case ${OPS_TYPE} in
@@ -97,9 +112,9 @@ case ${OPS_TYPE} in
   tdv_dml)
     S3_PATHS=("${TDV_DML_S3_PATHS[@]}")
     ;;
-#  stored_proc)
-#    S3_PATHS=("${TDV_STORED_PROC_S3_PATHS[@]}")
-#    ;;
+  dml_with_dag)
+    S3_PATHS=("${TDV_DML_WITH_DAG_S3_PATHS[@]}")
+    ;;
   *)
     echo "Error: Invalid OPS_TYPE=${OPS_TYPE}"
     ;;
