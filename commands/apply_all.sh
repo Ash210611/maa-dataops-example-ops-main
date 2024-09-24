@@ -43,7 +43,7 @@ export SECRETS_MANAGER=$(jq -r '.secrets_name.value' output.json)
 export TDV_DDL_S3_PATHS=$(jq -r '.moduleyamlddl.value | .[] | select(.type=="tdv_ddl") | .output_prefix' output.json)
 export TDV_DML_S3_PATHS=$(jq -r '.moduleyamldml.value | .[] | select(.type=="tdv_dml") | .output_prefix' output.json)
 export TDV_DML_WITH_DAG_S3_PATHS=$(jq -r '.moduleyamlcustomdml.value | .[] | select(.type=="dml_with_dag") | .output_prefix' output.json)
-#export TDV_STORED_PROC_S3_PATHS=$(jq -r '.moduleyamlsp.value | .[] | select(.type=="stored_proc") | .output_prefix' output.json)
+export TDV_STORED_PROC_S3_PATHS=$(jq -r '.moduleyamlsp.value | .[] | select(.type=="stored_proc") | .output_prefix' output.json)
 popd
 
 echo "-- Export Values:"
@@ -85,11 +85,8 @@ run_poetry_command() {
 }
 
 case ${OPS_TYPE} in
-#  all)
-#    S3_PATHS=("${TDV_DDL_S3_PATHS[@]}" "${TDV_DML_S3_PATHS[@]}" "${TDV_STORED_PROC_S3_PATHS[@]}")
-#    ;;
   all)
-    S3_PATHS=("${TDV_DDL_S3_PATHS[@]}" "${TDV_DML_S3_PATHS[@]}")
+    S3_PATHS=("${TDV_DDL_S3_PATHS[@]}" "${TDV_DML_S3_PATHS[@]}" "${TDV_STORED_PROC_S3_PATHS[@]}")
     ;;
   tdv_ddl)
     S3_PATHS=("${TDV_DDL_S3_PATHS[@]}")
@@ -97,9 +94,9 @@ case ${OPS_TYPE} in
   tdv_dml)
     S3_PATHS=("${TDV_DML_S3_PATHS[@]}")
     ;;
-#  stored_proc)
-#    S3_PATHS=("${TDV_STORED_PROC_S3_PATHS[@]}")
-#    ;;
+  stored_proc)
+    S3_PATHS=("${TDV_STORED_PROC_S3_PATHS[@]}")
+    ;;
   *)
     echo "Error: Invalid OPS_TYPE=${OPS_TYPE}"
     ;;

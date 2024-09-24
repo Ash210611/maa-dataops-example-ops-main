@@ -13,7 +13,14 @@ def container = [
         memory: 4000
 ]
 
-String accountRoleName = "Enterprise/MAAGATEKEEPERJENKINS"
+def rules_engine_container = [
+        image: "registry-dev.cigna.com/maa-dataops-rules-engine/maa-dataops-rules-engine-build",
+        version: "1.0.2",
+        cpu: 2000,
+        memory: 2000
+]
+
+String accountRoleName = "Enterprise/MAAEVERNORTHGATEKEEPERJENKINS"
 String cloud_name = "evernorth-qp-gov-solns-openshift-devops1"
 String eks_gatekeeper_cloud_name = "evernorth-qp-gov-solns-eks-prod"
 
@@ -74,8 +81,8 @@ spec:
                         )
                         env.SOLUTION_BRANCH = inputResult
 
-                        def ENV_DEV = ['dev', 'dev2', 'int']
-                        def ENV_TEST = ['uat', 'qa', 'ite']
+                        def ENV_DEV = ['dev', 'dev2']
+                        def ENV_TEST = ['int', 'uat', 'qa']
                         def ENV_PROD = ['prd']
                         def ENV_ALL = ENV_DEV + ENV_TEST + ENV_PROD
 
@@ -161,6 +168,41 @@ boolean RUN_DEPLOY = params.DEPLOY ?: false
 boolean RUN_CONFTEST = params.CONFTEST ?: false
 boolean RUN_GAMEDAY = params.GAMEDAY ?: false
 String OPS_TYPE = params.OPS_TYPE ?: "all"
+boolean RUN_RULES_ENGINE = params.RULES_ENGINE ?: false
+
+def rulesPhase = [
+	freestyleType      : 'RULES_ENGINE',
+	branchPattern      : 'dev.*|test|main|feature.*|release',
+	container          : rules_engine_container,
+	sdlcEnvironment    : 'Non-Prod',
+	extraCredentials: [
+                usernamePassword(
+                        credentialsId: 'quay_dev_user_pass',
+                        usernameVariable: 'UN_RE_DMV_USER',
+                        passwordVariable: 'UN_RE_DMV_PSWD'
+                ),
+               usernamePassword(
+                        credentialsId: 'SVPDEVOP-CIG-CLONEA_UserPw',
+                        usernameVariable: 'GIT_USER',
+                        passwordVariable: 'GIT_TOKEN'
+                ),
+        ],
+    script: '''
+    set -x
+
+    export OPS_DIR=$(pwd)
+    chmod +x ./commands/run_rules.sh
+    chmod +x ./commands/obtain_solutions.sh
+    ./commands/obtain_solutions.sh
+
+    poetry -C scripts/toml_utilities install
+    ddls=$(poetry -C scripts/toml_utilities run obtain_build_config directory_types git_repo --ops_type tdv_ddl)
+    echo $ddls
+
+    cd ~/rules_engine
+    ${OPS_DIR}/commands/run_rules.sh $OPS_DIR $ddls
+    '''
+]
 
 def buildPhase = [
         buildType       : 'plz',
@@ -344,6 +386,13 @@ if (!RUN_GAMEDAY) {
     gameDay.branchPattern = "ignored_branch_not_to_run"
 }
 
+if (!RUN_RULES_ENGINE) {
+    rulesPhase.branchPattern = "ignored_branch_not_to_run"
+}
+else {
+    currentBuild.displayName = env.BUILD_NUMBER + " With RULES_ENGINE"
+}
+
 if (env.ENV == "prod" && RUN_DEPLOY){
     pleaseDeploy = pleaseDeploy + [
         ticket: [
@@ -353,7 +402,7 @@ if (env.ENV == "prod" && RUN_DEPLOY){
     ]
 }
 
-if (!RUN_BUILD && !RUN_DEPLOY && !RUN_GAMEDAY) {
+if (!RUN_BUILD && !RUN_DEPLOY && !RUN_RULES_ENGINE) {
     def stars = "******************************************************************************************************************************************\n"
     starts = stars + stars +stars
     echo(starts+"WARNING: No stages defined because BUILD, DEPLOY nor GAMEDAY were not selected in the build parameters.\n" +
@@ -368,6 +417,11 @@ ansiColor('xterm') {
                                 defaultValue: true,
                                 name: 'BUILD',
                                 description: 'If true then run Build and run tests for this build.'
+                        ),
+                        booleanParam(
+                                defaultValue: true,
+                                name: 'RULES_ENGINE',
+                                description: 'If true then run rules for any DDLs.'
                         ),
                         booleanParam(
                                 defaultValue: true,
@@ -413,6 +467,6 @@ ansiColor('xterm') {
         ]
         cloudName = "${cloud_name}"
         gitlabConnectionName = 'cigna_github'
-        phases = [buildPhase, pleaseDeploy]
+        phases = [buildPhase, rulesPhase, pleaseDeploy]
     }
 }
