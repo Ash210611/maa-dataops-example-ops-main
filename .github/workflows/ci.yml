@@ -8,7 +8,7 @@ on:
         required: true
         type: choice
         options: 
-          - origin/feature_deploy-store-procedure
+          - feature_deploy-store-procedure
           - origin/feature_fix-jenkins-sms
           - origin/feature_jenkins-input
           - origin/feature_liquibase-rollback
