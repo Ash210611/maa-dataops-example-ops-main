@@ -14,6 +14,7 @@ on:
           - dev
           - test
           - main
+          - default
 
 jobs:
   select_branch:
@@ -33,6 +34,7 @@ jobs:
         ENV_DEV="dev dev2"
         ENV_TEST="int uat qa"
         ENV_PROD="prd"
+        ENV_ALL="$ENV_DEV $ENV_TEST $ENV_PROD"
 
         case "${{ github.event.inputs.git_branch }}" in
           dev)
@@ -43,6 +45,9 @@ jobs:
             ;;
           main)
             TDV_ENV_CHOICES="$ENV_PROD"
+            ;;
+          *)
+            TDV_ENV_CHOICES="$ENV_ALL"
             ;;
         esac
 
