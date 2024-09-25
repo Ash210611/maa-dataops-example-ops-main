@@ -1,4 +1,4 @@
-name: CI Pipeline - Step 1: Select Git Branch
+name: CI Pipeline - Step 1
 
 on:
   workflow_dispatch:
