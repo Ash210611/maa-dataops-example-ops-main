@@ -26,8 +26,45 @@ jobs:
       run: |
         echo "Selected TDV Environment: ${{ env.TDV_ENV }}"
 
-    - name: Further processing
-      if: steps.check_comment.outcome == 'success'
+    - name: Set Environment Variables
       run: |
-        # Add any further steps you need to handle the TDV environment
-        echo "Processing TDV environment: ${{ env.TDV_ENV }}"
+        case "${{ github.event.inputs.git_branch }}" in
+          dev)
+            echo "ACCOUNT_NUMBER=215132885729" >> $GITHUB_ENV
+            echo "ENV=dev" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_1=SVT_DATAOPS_DEV" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_2=SVT_DATAOPS_DEV" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_3=SVT_DATAOPS_INT" >> $GITHUB_ENV
+            ;;
+          test)
+            echo "ACCOUNT_NUMBER=883528617975" >> $GITHUB_ENV
+            echo "ENV=test" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_1=SVT_DATAOPS_UAT" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_2=SVT_DATAOPS_UAT" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_3=SVT_DATAOPS_UAT" >> $GITHUB_ENV
+            ;;
+          main)
+            echo "ACCOUNT_NUMBER=160989692528" >> $GITHUB_ENV
+            echo "ENV=prod" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_1=SVT_DATAOPS_PRD" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_2=" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_3=" >> $GITHUB_ENV
+            ;;
+          *)
+            echo "ACCOUNT_NUMBER=215132885729" >> $GITHUB_ENV
+            echo "ENV=dev" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_1=SVT_DATAOPS_DEV" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_2=SVT_DATAOPS_DEV" >> $GITHUB_ENV
+            echo "TDV_SERVICE_ACCOUNT_NAME_3=SVT_DATAOPS_INT" >> $GITHUB_ENV
+            ;;
+        esac
+
+    - name: Print Environment Variables
+      run: |
+        echo "SOLUTION_BRANCH: ${{ github.event.inputs.git_branch }}"
+        echo "TDV_ENV: ${{ github.event.inputs.tdv_environment }}"
+        echo "ACCOUNT_NUMBER: ${{ env.ACCOUNT_NUMBER }}"
+        echo "ENV: ${{ env.ENV }}"
+        echo "TDV_SERVICE_ACCOUNT_NAME_1: ${{ env.TDV_SERVICE_ACCOUNT_NAME_1 }}"
+        echo "TDV_SERVICE_ACCOUNT_NAME_2: ${{ env.TDV_SERVICE_ACCOUNT_NAME_2 }}"
+        echo "TDV_SERVICE_ACCOUNT_NAME_3: ${{ env.TDV_SERVICE_ACCOUNT_NAME_3 }}"
