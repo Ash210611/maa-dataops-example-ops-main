@@ -56,6 +56,8 @@ jobs:
     - name: Create an Issue if None Exists
       id: create_issue
       uses: JasonEtco/create-an-issue@v2
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         title: "TDV Environment Selection Required"
         body: |
