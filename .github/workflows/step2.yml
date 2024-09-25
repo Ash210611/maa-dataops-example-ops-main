@@ -1,33 +1,10 @@
 name: CI Pipeline - Step 2
 
 on:
-  workflow_run:
-    workflows: ["CI Pipeline - Step 1"]
-    types:
-      - completed
   issue_comment:
     types: [created]
 
 jobs:
-  run_on_workflow_a_success:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run on workflow A success
-        run: echo "Workflow A completes successfully"
-  
-  download_context_artifact:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Download artifact'
-        uses: actions/download-artifact@v3
-        with:
-          name: env_vars.txt
-            
-      - name: Read the content of the text file
-        run: cat env_vars.txt
-
-  
   handle_comment:
     runs-on: ubuntu-latest
     steps:
@@ -86,7 +63,7 @@ jobs:
     - name: Print Environment Variables
       run: |
         echo "SOLUTION_BRANCH: ${{ github.event.inputs.git_branch }}"
-        echo "TDV_ENV: ${{ github.event.inputs.tdv_environment }}"
+        echo "TDV_ENV: env.TDV_ENV "
         echo "ACCOUNT_NUMBER: ${{ env.ACCOUNT_NUMBER }}"
         echo "ENV: ${{ env.ENV }}"
         echo "TDV_SERVICE_ACCOUNT_NAME_1: ${{ env.TDV_SERVICE_ACCOUNT_NAME_1 }}"
