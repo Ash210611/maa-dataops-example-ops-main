@@ -1,0 +1,33 @@
+name: CI Pipeline - Step 2
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  handle_comment:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check if Comment Contains TDV Selection
+      id: check_comment
+      run: |
+        comment_body="${{ github.event.comment.body }}"
+        echo "Comment body: $comment_body"
+        if [[ "$comment_body" == /select*tdv* ]]; then
+          tdv_env=$(echo "$comment_body" | sed 's/\/select tdv //')
+          echo "TDV_ENV=$tdv_env" >> $GITHUB_ENV
+        else
+          echo "Not a valid TDV selection comment."
+          exit 1
+        fi
+
+    - name: Print Selected TDV Environment
+      if: steps.check_comment.outcome == 'success'
+      run: |
+        echo "Selected TDV Environment: ${{ env.TDV_ENV }}"
+
+    - name: Further processing
+      if: steps.check_comment.outcome == 'success'
+      run: |
+        # Add any further steps you need to handle the TDV environment
+        echo "Processing TDV environment: ${{ env.TDV_ENV }}"
