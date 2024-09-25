@@ -1,5 +1,8 @@
 name: CI Pipeline - Step 1
 
+permissions:
+  issues: write
+
 on:
   workflow_dispatch:
     inputs:
