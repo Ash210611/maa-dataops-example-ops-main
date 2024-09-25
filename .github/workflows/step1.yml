@@ -58,11 +58,13 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
+          const branch = "${{ github.event.inputs.branch }}";
+          const tdvEnvChoices = "${{ github.event.inputs.tdv_env_choices }}";
           const issueTitle = "TDV Environment Selection Required";
           const issueBody = `
           ## TDV Environment Selection Required
-          - For branch \`${{ github.event.inputs.branch }}\`, the available TDV environments are:
-          \`${{ github.event.inputs.tdv_env_choices }}\`
+          - For branch \`${branch}\`, the available TDV environments are:
+          \`${tdvEnvChoices}\`
           - Please comment on this issue with the TDV environment you want to select. For example:
           \`/select tdv dev\`
           `;
