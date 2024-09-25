@@ -1,0 +1,49 @@
+name: CI Pipeline - Step 1: Select Git Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_branch:
+        description: 'Select a git branch'
+        required: true
+        type: choice
+        options: 
+          - dev
+          - test
+          - main
+
+jobs:
+  fetch_branches:
+    runs-on: ubuntu-latest
+    outputs:
+      tdv_env_choices: ${{ steps.set_tdv_env_choices.outputs.tdv_env_choices }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set TDV Environment Choices
+      id: set_tdv_env_choices
+      run: |
+        ENV_DEV="dev dev2"
+        ENV_TEST="int uat qa"
+        ENV_PROD="prd"
+
+        TDV_ENV_CHOICES=""
+        case "${{ github.event.inputs.git_branch }}" in
+          dev)
+            TDV_ENV_CHOICES="$ENV_DEV"
+            ;;
+          test)
+            TDV_ENV_CHOICES="$ENV_TEST"
+            ;;
+          main)
+            TDV_ENV_CHOICES="$ENV_PROD"
+            ;;
+        esac
+
+        echo "TDV_ENV_CHOICES=$TDV_ENV_CHOICES" >> $GITHUB_ENV
+        echo "::set-output name=tdv_env_choices::$TDV_ENV_CHOICES"
+
+    - name: Output TDV Environment Choices
+      run: |
+        echo "TDV Environment Choices: ${{ steps.set_tdv_env_choices.outputs.tdv_env_choices }}"
