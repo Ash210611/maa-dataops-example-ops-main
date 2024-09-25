@@ -63,7 +63,7 @@ jobs:
     - name: Print Environment Variables
       run: |
         echo "SOLUTION_BRANCH: ${{ github.event.inputs.git_branch }}"
-        echo "TDV_ENV: env.TDV_ENV "
+        echo "TDV_ENV: ${{ env.TDV_ENV }} "
         echo "ACCOUNT_NUMBER: ${{ env.ACCOUNT_NUMBER }}"
         echo "ENV: ${{ env.ENV }}"
         echo "TDV_SERVICE_ACCOUNT_NAME_1: ${{ env.TDV_SERVICE_ACCOUNT_NAME_1 }}"
