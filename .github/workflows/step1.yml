@@ -50,10 +50,21 @@ jobs:
       run: |
         echo "Available TDV Environments for branch ${{ github.event.inputs.git_branch }}: ${{ steps.set_tdv_env_choices.outputs.tdv_env_choices }}"
       
+    - name: Create an Issue if None Exists
+      id: create_issue
+      uses: peter-evans/create-issue@v2
+      with:
+        title: "TDV Environment Selection Required"
+        body: |
+          For branch `${{ env.BRANCH }}`, the available TDV environments are:
+          `${{ steps.set_tdv_env_choices.outputs.tdv_env_choices }}`
+          Please comment on this issue with the TDV environment you want to select.
+          Example: `/select tdv dev`
+
     - name: Create or Update Issue Comment
       uses: peter-evans/create-or-update-comment@v2
       with:
-        issue-number: 1 # You can create or use an existing issue
+        issue-number: ${{ steps.create_issue.outputs.issue-number }}
         body: |
           ## TDV Environment Selection Required
           - For branch `${{ env.BRANCH }}`, the available TDV environments are:
