@@ -1,0 +1,23 @@
+name: CI Pipeline - Step 2: Select TDV Environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      tdv_env:
+        description: 'Select a TDV environment'
+        required: true
+        type: choice
+        options: 
+          - dev
+          - dev2
+          - int
+          - uat
+          - prd
+
+jobs:
+  set_environment:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Print Selected TDV Environment
+      run: |
+        echo "Selected TDV Environment: ${{ github.event.inputs.tdv_env }}"
