@@ -20,54 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Download artifact'
-        uses: actions/github-script@v6
+        uses: actions/download-artifact@v3
         with:
-          script: |
-            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               run_id: context.payload.workflow_run.id,
-            });
+          name: env_vars.txt
             
-            let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
-              return artifact.name == "env_vars.txt"
-            })[0];
-            
-            let download = await github.rest.actions.downloadArtifact({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               artifact_id: matchArtifact.id,
-               archive_format: 'zip',
-            });
-            
-            let fs = require('fs');
-            fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/env_vars.txt.zip`, Buffer.from(download.data));
-            
-      - name: 'Unzip artifact'
-        run: unzip env_vars.txt.zip
+      - name: Read the content of the text file
+        run: cat env_vars.txt
 
-      - name: 'Return Parsed JSON'
-        uses: actions/github-script@v6
-        id: return-parsed-json
-        with:
-          script: |
-            let fs = require('fs');
-            let data = fs.readFileSync('./env_vars.txt');
-            return JSON.parse(data);
-            
-    outputs:
-        property_one: ${{fromJSON(steps.return-parsed-json.outputs.result).prop_1}}
-        property_two: ${{fromJSON(steps.return-parsed-json.outputs.result).prop_2}}
-  
-  log_context_values:
-    needs:
-      - download_context_artifact
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Log Context Values'
-        run: |
-          echo "${{ needs.download_context_artifact.outputs.property_one }}"
-          echo "${{ needs.download_context_artifact.outputs.property_two }}"
   
   handle_comment:
     runs-on: ubuntu-latest
