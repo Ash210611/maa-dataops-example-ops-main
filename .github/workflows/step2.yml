@@ -1,10 +1,73 @@
 name: CI Pipeline - Step 2
 
 on:
+  workflow_run:
+    workflows: ["CI Pipeline - Step 1"]
+    types:
+      - completed
   issue_comment:
     types: [created]
 
 jobs:
+  run_on_workflow_a_success:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run on workflow A success
+        run: echo "Workflow A completes successfully"
+  
+  download_context_artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Download artifact'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: context.payload.workflow_run.id,
+            });
+            
+            let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "env_vars.txt"
+            })[0];
+            
+            let download = await github.rest.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: matchArtifact.id,
+               archive_format: 'zip',
+            });
+            
+            let fs = require('fs');
+            fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/env_vars.txt.zip`, Buffer.from(download.data));
+            
+      - name: 'Unzip artifact'
+        run: unzip env_vars.txt.zip
+
+      - name: 'Return Parsed JSON'
+        uses: actions/github-script@v6
+        id: return-parsed-json
+        with:
+          script: |
+            let fs = require('fs');
+            let data = fs.readFileSync('./env_vars.txt');
+            return JSON.parse(data);
+  outputs:
+      property_one: ${{fromJSON(steps.return-parsed-json.outputs.result).prop_1}}
+      property_two: ${{fromJSON(steps.return-parsed-json.outputs.result).prop_2}}
+  
+  log_context_values:
+    needs:
+      - download_context_artifact
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Log Context Values'
+        run: |
+          echo "${{ needs.download_context_artifact.outputs.property_one }}"
+          echo "${{ needs.download_context_artifact.outputs.property_two }}"
+  
   handle_comment:
     runs-on: ubuntu-latest
     steps:
@@ -20,6 +83,7 @@ jobs:
           echo "Not a valid TDV selection comment."
           exit 1
         fi
+    
 
     - name: Print Selected TDV Environment
       if: steps.check_comment.outcome == 'success'
@@ -28,7 +92,7 @@ jobs:
 
     - name: Set Environment Variables
       run: |
-        case "${{ secrets.SELECTED_BRANCH }}" in
+        case "${{ github.event.inputs.git_branch }}" in
           dev)
             echo "ACCOUNT_NUMBER=215132885729" >> $GITHUB_ENV
             echo "ENV=dev" >> $GITHUB_ENV
@@ -61,8 +125,8 @@ jobs:
 
     - name: Print Environment Variables
       run: |
-        echo "SOLUTION_BRANCH: ${{ secrets.SELECTED_BRANCH }}"
-        echo "TDV_ENV: ${{ env.TDV_ENV }}"
+        echo "SOLUTION_BRANCH: ${{ github.event.inputs.git_branch }}"
+        echo "TDV_ENV: ${{ github.event.inputs.tdv_environment }}"
         echo "ACCOUNT_NUMBER: ${{ env.ACCOUNT_NUMBER }}"
         echo "ENV: ${{ env.ENV }}"
         echo "TDV_SERVICE_ACCOUNT_NAME_1: ${{ env.TDV_SERVICE_ACCOUNT_NAME_1 }}"
