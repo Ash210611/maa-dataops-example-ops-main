@@ -65,8 +65,8 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: my-artifact
-        path: env_vars.txt
+        name: env_vars.txt
+        path: ./
     
     - name: Output Available TDV Environments
       run: |
