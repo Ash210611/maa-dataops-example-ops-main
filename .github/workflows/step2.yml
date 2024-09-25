@@ -28,7 +28,7 @@ jobs:
 
     - name: Set Environment Variables
       run: |
-        case "${{ github.event.inputs.git_branch }}" in
+        case "${{ secrets.SELECTED_BRANCH }}" in
           dev)
             echo "ACCOUNT_NUMBER=215132885729" >> $GITHUB_ENV
             echo "ENV=dev" >> $GITHUB_ENV
@@ -61,8 +61,8 @@ jobs:
 
     - name: Print Environment Variables
       run: |
-        echo "SOLUTION_BRANCH: ${{ github.event.inputs.git_branch }}"
-        echo "TDV_ENV: ${{ github.event.inputs.tdv_environment }}"
+        echo "SOLUTION_BRANCH: ${{ secrets.SELECTED_BRANCH }}"
+        echo "TDV_ENV: ${{ env.TDV_ENV }}"
         echo "ACCOUNT_NUMBER: ${{ env.ACCOUNT_NUMBER }}"
         echo "ENV: ${{ env.ENV }}"
         echo "TDV_SERVICE_ACCOUNT_NAME_1: ${{ env.TDV_SERVICE_ACCOUNT_NAME_1 }}"
