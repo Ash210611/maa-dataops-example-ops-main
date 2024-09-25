@@ -8,14 +8,10 @@ on:
         required: true
         type: choice
         options: 
-          - feature_deploy-store-procedure
-          - origin/feature_fix-jenkins-sms
-          - origin/feature_jenkins-input
-          - origin/feature_liquibase-rollback
-          - origin/feature_rapcetm-533
-          - origin/feature_rules-engine
-          - origin/feature_test-new-config
-          - origin/feature_test-stored-procedure
+          - dev
+          - test
+          - main
+          - default
 
 jobs:
   fetch_branches:
@@ -39,6 +35,33 @@ jobs:
       uses: actions/checkout@v2
       with:
         ref: ${{ github.event.inputs.git_branch }}
+
+    - name: Set TDV Environment Choices
+      id: set_tdv_env_choices
+      run: |
+        ENV_DEV="dev dev2"
+        ENV_TEST="int uat qa"
+        ENV_PROD="prd"
+        ENV_ALL="$ENV_DEV $ENV_TEST $ENV_PROD"
+
+        TDV_ENV_CHOICES=""
+        case "${{ github.event.inputs.git_branch }}" in
+          dev)
+            TDV_ENV_CHOICES="$ENV_DEV"
+            ;;
+          test)
+            TDV_ENV_CHOICES="$ENV_TEST"
+            ;;
+          main)
+            TDV_ENV_CHOICES="$ENV_PROD"
+            ;;
+          *)
+            TDV_ENV_CHOICES="$ENV_ALL"
+            ;;
+        esac
+
+        echo "TDV_ENV_CHOICES=$TDV_ENV_CHOICES" >> $GITHUB_ENV
+        echo "::set-output name=tdv_env_options::$TDV_ENV_CHOICES"
 
     - name: Set Environment Variables
       run: |
