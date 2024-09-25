@@ -53,6 +53,7 @@ jobs:
 
         echo "TDV_ENV_CHOICES=$TDV_ENV_CHOICES" >> $GITHUB_ENV
         echo "::set-output name=tdv_env_choices::$TDV_ENV_CHOICES"
+        echo "::set-secret name=SELECTED_BRANCH::${{ github.event.inputs.branch_name }}"
 
     - name: Output Available TDV Environments
       run: |
