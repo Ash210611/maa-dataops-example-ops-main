@@ -54,7 +54,17 @@ jobs:
         echo "TDV_ENV_CHOICES=$TDV_ENV_CHOICES" >> $GITHUB_ENV
         echo "::set-output name=tdv_env_choices::$TDV_ENV_CHOICES"
         echo ""::set-secret name=SELECTED_BRANCH::${{ github.event.inputs.branch_name }}""
-
+        
+    - name: Set variable
+      id: set_var
+      run: echo "myvariable=${{ github.event.inputs.branch_name }}" >> $GITHUB_ENV
+      
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: my-artifact
+        path: $GITHUB_ENV
+    
     - name: Output Available TDV Environments
       run: |
         echo "Available TDV Environments for branch ${{ github.event.inputs.git_branch }}: ${{ steps.set_tdv_env_choices.outputs.tdv_env_choices }}"
