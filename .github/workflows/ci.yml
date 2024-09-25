@@ -31,10 +31,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: fetch_branches
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-      with:
-        ref: ${{ github.event.inputs.git_branch }}
 
     - name: Set TDV Environment Choices
       id: set_tdv_env_choices
