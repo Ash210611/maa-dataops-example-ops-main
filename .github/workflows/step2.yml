@@ -54,9 +54,10 @@ jobs:
             let fs = require('fs');
             let data = fs.readFileSync('./env_vars.txt');
             return JSON.parse(data);
-  outputs:
-      property_one: ${{fromJSON(steps.return-parsed-json.outputs.result).prop_1}}
-      property_two: ${{fromJSON(steps.return-parsed-json.outputs.result).prop_2}}
+            
+    outputs:
+        property_one: ${{fromJSON(steps.return-parsed-json.outputs.result).prop_1}}
+        property_two: ${{fromJSON(steps.return-parsed-json.outputs.result).prop_2}}
   
   log_context_values:
     needs:
