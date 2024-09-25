@@ -55,7 +55,7 @@ jobs:
       
     - name: Create an Issue if None Exists
       id: create_issue
-      uses: peter-evans/create-issue@v2
+      uses: JasonEtco/create-an-issue@v2
       with:
         title: "TDV Environment Selection Required"
         body: |
