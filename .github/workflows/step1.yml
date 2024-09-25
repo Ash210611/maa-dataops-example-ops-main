@@ -66,7 +66,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: my-artifact
-        path: $GITHUB_ENV
+        path: env_vars.txt
     
     - name: Output Available TDV Environments
       run: |
