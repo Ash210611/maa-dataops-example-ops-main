@@ -53,24 +53,25 @@ jobs:
       run: |
         echo "Available TDV Environments for branch ${{ github.event.inputs.git_branch }}: ${{ steps.set_tdv_env_choices.outputs.tdv_env_choices }}"
       
-    - name: Create Issue
+    - name: Create GitHub Issue
       uses: actions/github-script@v5
       with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const { github, context } = require('@actions/github');
           const issueTitle = "TDV Environment Selection Required";
           const issueBody = `
           ## TDV Environment Selection Required
-          - For branch \`${{ env.BRANCH }}\`, the available TDV environments are:
-          \`${{ steps.set_tdv_env_choices.outputs.tdv_env_choices }}\`
+          - For branch \`${{ github.event.inputs.branch }}\`, the available TDV environments are:
+          \`${{ github.event.inputs.tdv_env_choices }}\`
           - Please comment on this issue with the TDV environment you want to select. For example:
           \`/select tdv dev\`
           `;
-      
+
           const issue = await github.rest.issues.create({
-          ...context.repo,
-          title: issueTitle,
-          body: issueBody,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: issueTitle,
+            body: issueBody,
           });
-      
+
           console.log(`Created issue: ${issue.data.html_url}`);
