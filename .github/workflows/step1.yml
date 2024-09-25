@@ -16,6 +16,14 @@ jobs:
   select_branch:
     runs-on: ubuntu-latest
     steps:
+    - name: Get Branch Name from Workflow Trigger
+      id: get_branch
+      run: |
+        # Get the current branch name where the workflow is triggered
+        BRANCH="${{ github.ref_name }}"
+        echo "Branch identified: $BRANCH"
+        echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+        
     - name: Set TDV Environment Choices
       id: set_tdv_env_choices
       run: |
@@ -48,7 +56,7 @@ jobs:
         issue-number: 1 # You can create or use an existing issue
         body: |
           ## TDV Environment Selection Required
-          - For branch `${{ github.event.inputs.git_branch }}`, the available TDV environments are:
+          - For branch `${{ env.BRANCH }}`, the available TDV environments are:
             `${{ steps.set_tdv_env_choices.outputs.tdv_env_choices }}`
           - Please comment on this issue with the TDV environment you want to select. For example:
             `/select tdv dev`
