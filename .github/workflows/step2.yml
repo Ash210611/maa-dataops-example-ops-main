@@ -2,7 +2,7 @@ name: CI Pipeline - Step 2
 
 on:
   workflow_run:
-    workflows: ["Upload Artifact Workflow"]  # Name of the first workflow
+    workflows: ["CI Pipeline - Step 1"]  # Name of the first workflow
     types:
       - completed
 
