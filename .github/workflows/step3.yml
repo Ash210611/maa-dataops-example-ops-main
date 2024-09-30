@@ -1,0 +1,28 @@
+name: CI Pipeline - Step 3
+
+on:
+  workflow_run:
+    workflows: 
+      - "CI Pipeline - Step 1"
+      - "CI Pipeline - Step 2"
+    types:
+      - completed
+
+jobs:
+  download-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download github_branch
+        uses: actions/download-artifact@v3
+        with:
+          name: github_branch
+  
+      - name: Download tdv_env
+        uses: actions/download-artifact@v3
+        with:
+          name: tdv_env
+  
+      - name: Verify artifacts
+        run: |
+          cat artifact1.txt
+          cat artifact2.txt
