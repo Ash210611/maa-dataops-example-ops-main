@@ -16,7 +16,7 @@ jobs:
         id: get_run_id
         run: |
           workflow_name="CI Pipeline - Step 1"  # Name of the workflow
-          repo_owner=$GITHUB_REPOSITORY_OWNER
+          repo_owner=${{ github.repository_owner }}
           repo_name=${{ github.repository }}
   
           # Call the GitHub API to list workflow runs by workflow name
