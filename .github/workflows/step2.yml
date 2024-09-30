@@ -1,10 +1,8 @@
 name: CI Pipeline - Step 2
 
 on:
-  workflow_run:
-    workflows: ["CI Pipeline - Step 1"]  # Name of the first workflow
-    types:
-      - completed
+  issue_comment:
+    types: [created]
 
 jobs:
   handle_comment:
