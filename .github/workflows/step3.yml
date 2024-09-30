@@ -17,9 +17,9 @@ jobs:
       - name: Get the latest run_id of another workflow
         id: get_run_id
         run: |
-          workflow_name="CI Pipeline - Step 1"  # Name of the workflow
-          repo_owner=${{ github.repository_owner }}
-          repo_name=${{ github.repository }}
+          workflow_name="step1.yml"  # Name of the workflow
+          repo_owner="${{ github.repository_owner }}"
+          repo_name="${{ github.repository }}"
   
           # Call the GitHub API to list workflow runs by workflow name
           response=$(curl -L \
