@@ -63,10 +63,10 @@ jobs:
         printf '{ 
               "${{ github.event.inputs.git_branch }}"
             }'
-        >> context.json
+        >> context
     - uses: actions/upload-artifact@v3
       with:
-        name: context.json
+        name: context
         path: ./
     
     - name: Output Available TDV Environments
