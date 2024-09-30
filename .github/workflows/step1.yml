@@ -60,7 +60,10 @@ jobs:
 
     - name: Some Step 
       run: |
-       "${{ github.event.inputs.git_branch }}" >> context.json
+        printf '{ 
+              "${{ github.event.inputs.git_branch }}"
+            }'
+        >> context.json
     - uses: actions/upload-artifact@v3
       with:
         name: context.json
