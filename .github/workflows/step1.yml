@@ -75,7 +75,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const branch = "${{ github.event.inputs.git_branch }}";
-          const tdvEnvChoices = "${{ TDV_ENV_CHOICES }}";
+          const tdvEnvChoices = "$TDV_ENV_CHOICES";
           const issueTitle = "TDV Environment Selection Required";
           const issueBody = `
           ## TDV Environment Selection Required
