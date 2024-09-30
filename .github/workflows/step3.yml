@@ -20,6 +20,7 @@ jobs:
           workflow_name="step1.yml"  # Name of the workflow
           repo_owner="${{ github.repository_owner }}"
           repo_name="${{ github.repository }}"
+          echo "https://api.github.com/repos/{$repo_owner}/$repo_name/actions/workflows"
   
           # Call the GitHub API to list workflow runs by workflow name
           response=$(curl -L \
