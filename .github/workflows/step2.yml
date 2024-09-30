@@ -27,6 +27,13 @@ jobs:
       run: |
         echo "Selected TDV Environment: ${{ env.TDV_ENV }}"
 
+    - name: Uploading TDV ENV Artifat
+      run: echo "${{ env.TDV_ENV }}" >> tdv_env
+    - uses: actions/upload-artifact@v3
+      with:
+        name: tdv_env
+        path: ./
+
     - name: Set Environment Variables
       run: |
         case "${{ github.event.inputs.git_branch }}" in
