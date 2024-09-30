@@ -57,6 +57,14 @@ jobs:
 
     - name: Print the variable
       run: echo "The branch name is ${{ github.event.inputs.git_branch }}"
+
+    - name: Some Step 
+      run: |
+       "${{ github.event.inputs.git_branch }}" >> context.json
+    - uses: actions/upload-artifact@v3
+      with:
+        name: context.json
+        path: ./
     
     - name: Output Available TDV Environments
       run: |
