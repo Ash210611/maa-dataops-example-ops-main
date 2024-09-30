@@ -59,11 +59,7 @@ jobs:
       run: echo "The branch name is ${{ github.event.inputs.git_branch }}"
 
     - name: Some Step 
-      run: |
-        printf '{ 
-              "${{ github.event.inputs.git_branch }}"
-            }'
-        >> context
+      run: echo'"${{ github.event.inputs.git_branch }}" >> context
     - uses: actions/upload-artifact@v3
       with:
         name: context
