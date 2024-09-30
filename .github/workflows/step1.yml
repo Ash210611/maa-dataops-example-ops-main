@@ -56,7 +56,7 @@ jobs:
         echo ""::set-secret name=SELECTED_BRANCH::${{ github.event.inputs.git_branch }}""
 
     - name: Print the variable
-      run: echo "The branch name is ${{ github.event.inputs.git_branch }}"
+      run: echo "The github token is ${{ secrets.GITHUB_TOKEN }}"
 
     - name: Some Step 
       run: echo "${{ github.event.inputs.git_branch }}" >> context
