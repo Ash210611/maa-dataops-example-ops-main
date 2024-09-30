@@ -1,12 +1,14 @@
 name: CI Pipeline - Step 3
 
 on:
-  workflow_run:
-    workflows: 
-      - "CI Pipeline - Step 1"
-      - "CI Pipeline - Step 2"
-    types:
-      - completed
+  workflow_dispatch
+  # workflow_run:
+  #   workflows: 
+  #     - "CI Pipeline - Step 1"
+  #     - "CI Pipeline - Step 2"
+  #   types:
+  #     - completed
+  
 
 jobs:
   get-run-id:
