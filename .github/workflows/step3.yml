@@ -45,7 +45,7 @@ jobs:
           name: github_branch
           github-token : ${{ secrets.GIT_TOKEN}}
           repository : ${{ github.repository }}
-          run-id : $run_id
+          run-id : ${{ run_id }}
   
       # - name: Download tdv_env
       #   uses: actions/download-artifact@v3
