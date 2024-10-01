@@ -54,5 +54,5 @@ jobs:
   
       - name: Verify artifacts
         run: |
-          cat context
+          cat github_branch
           # cat artifact2.txt
