@@ -108,7 +108,7 @@ jobs:
 
   set-print-env-variables:
     runs-on: ubuntu-latest
-    needs: get-git-branch-value
+    needs: [get-git-branch-value,get-tdv-env-value]
     steps:
       - name: Setting Environnment variables
         id: set_env_variables
