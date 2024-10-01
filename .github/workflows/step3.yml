@@ -99,10 +99,6 @@ jobs:
            tdv_env_value=$(cat tdv_env)
            echo "tdv_env_value=${tdv_env_value}"
            echo "tdv_env=${tdv_env_value}" >> $GITHUB_OUTPUT
-    runs-on: ubuntu-latest
-    needs: get-git-branch-value
-    steps:
-      - run: echo ${{ needs.get-git-branch-value.outputs.branch-name }}
 
   set-print-env-variables:
     runs-on: ubuntu-latest
