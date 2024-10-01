@@ -52,6 +52,7 @@ jobs:
     steps:
       - name: Store artifacts Value
         run: |
+           cat github_branch
            branch_value=$(cat github_branch)
            echo "branch_value=${branch_value}"
            echo "branch=${branch_value}" >> $GITHUB_OUTPUT
