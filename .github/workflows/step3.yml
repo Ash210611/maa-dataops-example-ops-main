@@ -11,7 +11,7 @@ on:
   
 
 jobs:
-  get-run-id-step-1:
+  get-git-branch-value:
     runs-on: ubuntu-latest
     steps:
       - name: Get the latest run_id of Step 1 workflow
@@ -47,15 +47,11 @@ jobs:
           repository : ${{ github.repository }}
           run-id : ${{ steps.get_run_id_step_1.outputs.run_id }}
           
-  storing-git-branch-value:
-    runs-on: ubuntu-latest
-    steps:
       - name: Store artifacts Value
         run: |
-           cat github_branch
-           # branch_value=$(cat github_branch)
-           # echo "branch_value=${branch_value}"
-           # echo "branch=${branch_value}" >> $GITHUB_OUTPUT
+           branch_value=$(cat github_branch)
+           echo "branch_value=${branch_value}"
+           echo "branch=${branch_value}" >> $GITHUB_OUTPUT
       
   get-run-id-step-2:
     runs-on: ubuntu-latest
@@ -98,7 +94,6 @@ jobs:
     steps:
       - name: Store artifacts Value
         run: |
-           cat tdv_env
-           # branch_value=$(cat tdv_env)
-           # echo "branch_value=${branch_value}"
-           # echo "branch=${branch_value}" >> $GITHUB_OUTPUT
+           branch_value=$(cat tdv_env)
+           echo "branch_value=${branch_value}"
+           echo "branch=${branch_value}" >> $GITHUB_OUTPUT
