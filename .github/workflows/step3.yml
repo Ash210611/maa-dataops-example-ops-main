@@ -53,7 +53,7 @@ jobs:
            echo "branch_value=${branch_value}"
            echo "branch=${branch_value}" >> $GITHUB_OUTPUT
       
-  get-run-id-step-2:
+  get-tdv-env-value:
     runs-on: ubuntu-latest
     steps:
       - name: Get the latest run_id of Step 2 workflow
@@ -89,9 +89,6 @@ jobs:
           repository : ${{ github.repository }}
           run-id : ${{ steps.get_run_id_step_2.outputs.run_id }}
           
-  storing-tdv-env-value:
-    runs-on: ubuntu-latest
-    steps:
       - name: Store artifacts Value
         run: |
            branch_value=$(cat tdv_env)
