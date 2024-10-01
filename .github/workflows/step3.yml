@@ -54,7 +54,7 @@ jobs:
            branch_value=$(cat github_branch)
            echo "branch_value=${branch_value}"
            echo "branch=${branch_value}" >> $GITHUB_OUTPUT
-           echo "${{branch}}
+           echo "${{branch}}"
       
   get-tdv-env-value:
     runs-on: ubuntu-latest
