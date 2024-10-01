@@ -99,6 +99,6 @@ jobs:
       - name: Store artifacts Value
         run: |
            cat tdv_env
-           branch_value=$(cat tdv_env)
-           echo "branch_value=${branch_value}"
-           echo "branch=${branch_value}" >> $GITHUB_OUTPUT
+           # branch_value=$(cat tdv_env)
+           # echo "branch_value=${branch_value}"
+           # echo "branch=${branch_value}" >> $GITHUB_OUTPUT
