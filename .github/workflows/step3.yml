@@ -12,7 +12,7 @@ jobs:
   get-git-branch-value:
     runs-on: ubuntu-latest
     outputs:
-      branch: ${{ steps.get_branch.outputs.branch }}
+      branch-name: ${{ steps.get_branch.outputs.branch }}
     steps:
       - name: Get the latest run_id of Step 1 workflow
         id: get_run_id_step_1
@@ -105,7 +105,7 @@ jobs:
       - name: Setting Environnment variables
         id: set_env_variables
         run: |
-          case "${{ needs.get-git-branch-value.outputs.branch }}" in
+          case "${{ needs.get-git-branch-value.outputs.branch-name }}" in
             dev)
               echo "ACCOUNT_NUMBER=215132885729" >> $GITHUB_ENV
               echo "ENV=dev" >> $GITHUB_ENV
@@ -138,7 +138,7 @@ jobs:
 
       - name: Print Environment Variables
         run: |
-          echo "SOLUTION_BRANCH: ${{ needs.get-git-branch-value.outputs.branch }}"
+          echo "SOLUTION_BRANCH: ${{ needs.get-git-branch-value.outputs.branch-name }}"
           echo "TDV_ENV: ${{ needs.get-tdv-env-value.outputs.tdv_env }} "
           echo "ACCOUNT_NUMBER: ${{ env.ACCOUNT_NUMBER }}"
           echo "ENV: ${{ env.ENV }}"
