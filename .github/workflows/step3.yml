@@ -1,13 +1,12 @@
 name: CI Pipeline - Step 3
 
 on:
-  workflow_dispatch
-  # workflow_run:
-  #   workflows: 
-  #     - "CI Pipeline - Step 1"
-  #     - "CI Pipeline - Step 2"
-  #   types:
-  #     - completed
+  workflow_run:
+    workflows: 
+      - "CI Pipeline - Step 1"
+      - "CI Pipeline - Step 2"
+    types:
+      - completed
   
 
 jobs:
@@ -91,6 +90,6 @@ jobs:
           
       - name: Store artifacts Value
         run: |
-           branch_value=$(cat tdv_env)
-           echo "branch_value=${branch_value}"
-           echo "branch=${branch_value}" >> $GITHUB_OUTPUT
+           tdv_env_value=$(cat tdv_env)
+           echo "tdv_env_value=${tdv_env_value}"
+           echo "branch=${tdv_env_value}" >> $GITHUB_OUTPUT
