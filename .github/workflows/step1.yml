@@ -31,8 +31,8 @@ jobs:
     - name: Set TDV Environment Choices
       id: set_tdv_env_choices
       run: |
-        ENV_DEV="dev dev2"
-        ENV_TEST="int uat qa"
+        ENV_DEV="dev dev2 int"
+        ENV_TEST="uat qa ite"
         ENV_PROD="prd"
         ENV_ALL="$ENV_DEV $ENV_TEST $ENV_PROD"
 
