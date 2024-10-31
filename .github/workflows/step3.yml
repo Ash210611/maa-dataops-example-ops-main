@@ -146,3 +146,13 @@ jobs:
           echo "TDV_SERVICE_ACCOUNT_NAME_1: ${{ env.TDV_SERVICE_ACCOUNT_NAME_1 }}"
           echo "TDV_SERVICE_ACCOUNT_NAME_2: ${{ env.TDV_SERVICE_ACCOUNT_NAME_2 }}"
           echo "TDV_SERVICE_ACCOUNT_NAME_3: ${{ env.TDV_SERVICE_ACCOUNT_NAME_3 }}"
+
+      - name: Setup Powershell environment
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+
+      - name: Run PowerShell Script
+        run: |
+          .\buildPhase.ps1  # Assuming your script is named 'buildPhase.ps1' and is in the repository
+        shell: pwsh
